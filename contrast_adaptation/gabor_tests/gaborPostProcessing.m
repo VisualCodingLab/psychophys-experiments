@@ -6,6 +6,9 @@ function c = gaborPostProcessing(filename, obj)
 % or via object, in which object is passed, 
 % and filename is set as 0
 
+% If in same workspace as recently run script:
+% gaborPostProcessing(c.fullFile, 0)
+
 if (filename == 0)
     % Use obj
     c = obj;
@@ -29,17 +32,21 @@ ylim([-0.2 1.2])
 % Organise data
 freqAxis = unique(sort(c.inputs.frequency)); % x
 contrastAxis = unique(sort(c.inputs.contrast)); % y
-% Assume repeat = 1 (change later)
 outArr = zeros(length(freqAxis), length(contrastAxis));
+repCount = outArr; % Count repetitions of same value <- used for averaging without storing values
+
 % Sort data 
 for tri = 1:c.inputs.numTrials
     xIndex = find(freqAxis==c.inputs.freqFull(tri));
     yIndex = find(contrastAxis==c.inputs.contrastFull(tri));
-    outArr(xIndex, yIndex) = data(tri);
+    repCount(xIndex, yIndex) = repCount(xIndex, yIndex) + 1;
+    outArr(xIndex, yIndex) = (outArr(xIndex, yIndex) * (repCount(xIndex, yIndex)-1) + data(tri)) / repCount(xIndex, yIndex);
 end
 figure(2)
 h = heatmap(freqAxis, contrastAxis, outArr);
-colormap([1 0 0; 0 1 0])
+numColours = 1000; %max(repCount(:)); % <-- Dynamic colour bar
+mapColours = ((0:numColours)/numColours).' .* repmat([0 1 0], numColours+1, 1) + ((numColours:-1:0)/numColours).' .* repmat([1 0 0], numColours+1, 1);
+colormap(mapColours)
 h.Title = 'Effect of contrast-freq on success';
 h.YLabel = 'Contrast';
 h.XLabel = 'Frequency';

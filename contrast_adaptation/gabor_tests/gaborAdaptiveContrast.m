@@ -56,6 +56,7 @@ gL.Y = 0;
 %% Create Behaviours
 % Key behaviour (L for left, R for right)
 k = behaviors.keyResponse(c,'choice');
+k.verbose = false;
 k.from = 0;
 k.maximumRT= Inf;                   %Allow inf time for a response
 k.keys = {'q' 'p'};                                 %Press 'Q' for "left" gabor, 'P' for "right" gabor -> 
@@ -80,6 +81,7 @@ if isempty(c.pluginsByClass('eyetracker'))
 end
 
 fix = behaviors.fixate(c,'fixation');
+fix.verbose = false;
 fix.from            = 0;  % If fixation has not been achieved at this time, move to the next trial
 fix.to              = '@choice.stopTime';   % Require fixation until the choice is done.
 fix.X               = 0;
@@ -89,8 +91,8 @@ fix.failEndsTrial  = false;
 
 %% Create Inputs 
 % Contrasts & Frequencies to investigate
-input_Contrast = [0.1 0.2 0.3 0.4 0.5].^2;
-input_Freq = [1 3 5 7 9].^2;
+input_Contrast = [0.1 0.2 0.3].^2;
+input_Freq = [1 3 5].^2;
 
 addprop(c, 'inputs'); % Create property for inputs, so that we can access them from cic
 c.inputs.contrast = input_Contrast; % Save to cic
@@ -106,10 +108,9 @@ inputContrast = reshape(repmat(input_Contrast, length(input_Freq), 1), 1, []); %
 inputFreq = repmat(input_Freq, 1, length(input_Contrast)); % i.e. If inputFreq = [1 2 3], and len(inputContrast) = 2, this generates: [1 2 3 1 2 3]
 
 % Repetitions
-repeatContrast = 1;
-repeatFreq = 1;
-inputContrast = repmat(inputContrast, 1, repeatContrast);
-inputFreq = repmat(inputFreq, 1, repeatFreq);
+repeat = 3;
+inputContrast = repmat(inputContrast, 1, repeat);
+inputFreq = repmat(inputFreq, 1, repeat);
 
 numTrials = length(inputContrast);
 c.inputs.numTrials = numTrials; % Save to cic
