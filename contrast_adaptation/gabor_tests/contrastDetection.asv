@@ -1,0 +1,101 @@
+function contrastDetection
+% Contrast detection experiment. 
+% Shows Gabor patches in random locations, user is required to click on
+% them 
+
+%% Prerequisites. 
+import neurostim.*
+
+%% Setup CIC and the stimuli.
+c = myRig;   
+c.trialDuration = Inf; % A trial can only be ended by a mouse click
+c.cursor = 'arrow';
+c.screen.color.background = 0.5*ones(1,3);
+
+%% Before Trial
+c.addScript('BeforeTrial',@beginTrial); 
+function beginTrial(c)
+
+end
+
+%% Create Stimuli
+% Define coord system with origin at the center
+centerPoint.x = c.screen.width / 2;
+centerPoint.y = c.screen.height / 2;
+coord.x = @(prop)prop * c.screen.width/2 + centerPoint.x; % Input [-1, 1] to get x coord where 0 is center
+coord.y = @(prop)prop * c.screen.height/2 + centerPoint.y; % Input [-1, 1] to get y coord where 0 is center
+
+% Add center point fixation 
+% Note: Could possible add eye tracker to see if participant
+% is looking at the center point fixation
+f = stimuli.fixation(c,'centerPoint');       % Add a fixation point stimulus
+f.color             = [1 1 1];
+f.shape             = 'STAR';           % Shape of the fixation point
+f.size              = 0.25;
+f.X                 = coord.x(0);
+f.Y                 = coord.y(0);
+f.on                = 1;                % Always on
+
+% Add a Gabor stimuli (left and right) . 
+g=stimuli.gabor(c,'gabor_right');           
+g.color = [0.5 0.5 0.5];
+g.sigma = 0.5;    
+g.frequency = 3;
+g.phaseSpeed = 0;
+g.orientation = 0;
+g.mask ='GAUSS3';
+g.duration = Inf;
+g.X = coord.x(0.5);
+g.Y = coord.y(0);
+
+g=stimuli.gabor(c,'gabor_left');           
+g.color = [0.5 0.5 0.5];
+g.sigma = 0.5;    
+g.frequency = 3;
+g.phaseSpeed = 0;
+g.orientation = 0;
+g.mask ='GAUSS3';
+g.duration = Inf;
+g.X = coord.x(-0.5);
+g.Y = coord.y(0);
+
+
+%% Define conditions and blocks, then run. 
+% Contrasts & Frequencies to investigate
+inputContrast = [0 0.5 1];
+inputFreq = [0 0.5 1];
+
+
+% Combine variables 
+% Note: We could do it via .fac1, .fac2, however this would mean that one
+% contrast or frequency would remain constant whilst going through fac2
+% (i.e. not random on both dimensions). So only use one .fac1
+% The lengths of both arrays should now match, and each point 
+inputContrast = reshape(repmat(inputContrast, length(inputFreq), 1), 1, []); % i.e. If inputContrast = [1 2 3] and len(inputFreq) = 2, this generates: [1 1 2 2 3 3]
+inputFreq = repmat(inputFreq, 1, length(inputContrast)); % i.e. If inputFreq = [1 2 3], and len(inputContrast) = 2, this generates: [1 2 3 1 2 3]
+
+% Repetitions
+repeatContrast = 1;
+repeatFreq = 1;
+inputContrast = repmat(inputContrast, 1, repeatContrast);
+inputFreq = repmat(inputFreq, 1, repeatFreq);
+
+% Randomise
+randomise = true;
+if (randomise)
+    
+end
+
+% Define experimental setup
+d = design('contrast-freq');
+% Contrasts
+d.fac1.gabor_right.contrast = 0:0.1:0.5; % Factorial design; single factor with five levels.
+
+% Frequencies
+
+% Right / Left
+blk = block('contrast-freq',d);
+blk.nrRepeats = 1;
+c.run(blk);
+
+end 
