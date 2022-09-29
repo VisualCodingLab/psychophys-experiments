@@ -1,4 +1,4 @@
-aqqpqppqqp% Contrast detection experiment. 
+% Contrast detection experiment. 
 % Shows Gabor patches in random locations, user is required to click on
 % them 
 
@@ -89,8 +89,12 @@ fix.failEndsTrial  = false;
 
 %% Create Inputs 
 % Contrasts & Frequencies to investigate
-input_Contrast = [0.5 0.7 1];
-input_Freq = [3 10 15];
+input_Contrast = [0.1 0.2 0.3 0.4 0.5].^2;
+input_Freq = [1 3 5 7 9].^2;
+
+addprop(c, 'inputs'); % Create property for inputs, so that we can access them from cic
+c.inputs.contrast = input_Contrast; % Save to cic
+c.inputs.frequency = input_Freq; % Save to cic
 
 % Combine variables 
 % Note: We could do it via .fac1, .fac2, however this would mean that one
@@ -108,6 +112,7 @@ inputContrast = repmat(inputContrast, 1, repeatContrast);
 inputFreq = repmat(inputFreq, 1, repeatFreq);
 
 numTrials = length(inputContrast);
+c.inputs.numTrials = numTrials; % Save to cic
 
 % Randomise
 randomise = true;
@@ -116,6 +121,9 @@ if (randomise)
     inputContrast = inputContrast(randVector);
     inputFreq = inputFreq(randVector);
 end
+
+c.inputs.contrastFull = inputContrast;
+c.inputs.freqFull = inputFreq;
 
 % Generate random array to determine if gabor displays left/right
 inputX = double(rand(1, numTrials) > 0.5);
@@ -143,8 +151,7 @@ c.subject = 'easyD';
 c.run(blk);
 
 %% Analyse data
+% Possible to do live plotting in between trials ?
 % Gather data
-orientation = get(c.gabor_test.prms.orientation,'after','startTime');
+gaborPostProcessing(0, c);
 
-
- 

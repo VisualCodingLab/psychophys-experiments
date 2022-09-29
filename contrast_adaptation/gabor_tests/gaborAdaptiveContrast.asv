@@ -1,4 +1,3 @@
-function gaborAdaptiveContrast
 % Contrast detection experiment. 
 % Shows Gabor patches in random locations, user is required to click on
 % them 
@@ -38,6 +37,7 @@ gR.phaseSpeed = 0;
 gR.orientation = 90;
 gR.mask ='GAUSS3';
 gR.duration = Inf;
+gR.on = 0;
 gR.X = 5;
 gR.Y = 0;
 
@@ -58,13 +58,34 @@ gL.Y = 0;
 k = behaviors.keyResponse(c,'choice');
 k.from = 0;
 k.maximumRT= Inf;                   %Allow inf time for a response
-k.keys = {'l' 'r'};                                 %Press 'L' for "left" gabor, 'R' for "right" gabor
+k.keys = {'q' 'p'};                                 %Press 'Q' for "left" gabor, 'P' for "right" gabor -> 
+                                                    %Note: This was changed
+                                                    %from R & L because R
+                                                    %is on the left side of
+                                                    %the keyboard and L is
+                                                    %on the right side of
+                                                    %the keyboard
 k.correctFun = '@(gabor_test.X > 0) + 1';   %Function returns the index of the correct response (i.e., key 1 -> L or 2 -> R)
 k.required = false; % Do not repeat if incorrect response
 % Define trial duration
 c.trialDuration = '@choice.stopTime';       %End the trial as soon as the 2AFC response is made.
 k.failEndsTrial = false;
 k.successEndsTrial  = false;
+
+%% Enforce Fixation at Center
+%Make sure there is an eye tracker (or at least a virtual one)
+if isempty(c.pluginsByClass('eyetracker'))
+    e = neurostim.plugins.eyetracker(c);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
+    e.useMouse = true;
+end
+
+fix = behaviors.fixate(c,'fixation');
+fix.from            = 0;  % If fixation has not been achieved at this time, move to the next trial
+fix.to              = '@choice.stopTime';   % Require fixation until the choice is done.
+fix.X               = 0;
+fix.Y               = 0; 
+fix.tolerance       = 2;
+fix.failEndsTrial  = false;
 
 %% Create Inputs 
 % Contrasts & Frequencies to investigate
@@ -98,26 +119,22 @@ end
 
 % Generate random array to determine if gabor displays left/right
 inputX = double(rand(1, numTrials) > 0.5);
-inputX = inputX*2 - 1;
-inputX = inputX * 5; % Scale by 5
+inputX = inputX*2 - 1; % Turn 0 -> -1
+inputX = inputX * 5; % Scale by 5 to move X position outward
 
-% Inf for Off, 0 for On
 
 %% Create expermental setup
 % Define experimental setup
 d = design('contrast-freq');
 
 % Contrast
-d.fac1.gabor_right.contrast = inputContrast; % Factorial design; single factor with five levels.
-d.fac1.gabor_left.contrast = inputContrast; 
+d.fac1.gabor_test.contrast = inputContrast; 
 
 % Frequency
-d.fac1.gabor_right.frequency = inputFreq;
-d.fac1.gabor_left.frequency = inputFreq;
+d.fac1.gabor_test.frequency = inputFreq;
 
 % Right or left
-d.fac1.gabor_right.on = inputGaborRight;
-d.fac1.gabor_left.on = inputGaborLeft;
+d.fac1.gabor_test.X = inputX;
 
 
 blk = block('contrast-freq',d);
@@ -126,5 +143,18 @@ c.subject = 'easyD';
 c.run(blk);
 
 %% Analyse data
+% Possible to do live plotting in between trials ?
+% Gather data
+[data,trial] = get(c.choice.prms.correct,'atTrialTime',Inf);
 
-end 
+figure(1)
+plot(trial, data,  '-o')
+title("Correct Choices")
+ylabel("1 = Yes, 0 = No")
+xlabel("Trial No.")
+ylim([-0.2 1.2])
+
+% Organise data
+freqAxis = sort(input_Freq);
+contrastAxis = sort(input_Contrast);
+
