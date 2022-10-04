@@ -39,7 +39,9 @@ classdef csf_base < handle
             f.on                = 0;                % Always on
             f.duration          = Inf;
             
-            % Test gabor to display left or right
+            % Add a Gabor stimuli (left and right) .
+            % NOTE: SHOULD CHANGE TO JUST A SINGLE GABOR AND THEN RANDOMISE THE X POSITION
+            % AS EITHER -5 OR 5 (i.e. with jitter plugin) => WILL MAKE ANALYSIS EASIER
             g=stimuli.gabor(obj.cic,'gabor_test'); % Gabor to display during testing (either left or right)       
             g.color = [0.5 0.5 0.5];
             g.sigma = 0.5;    
@@ -52,31 +54,18 @@ classdef csf_base < handle
             g.X = 5;
             g.Y = 0;
 
-            % Adapter gabors
-            % Any changes should be only made to gL (as gR copies from gL)
-            % Realisatically, the only changes made should be to frequency,
-            % contrast (although should be 1) and duration (vector of
-            % durations)
-            gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
-            gL.on = 0; 
-            gL.duration = 0; % Default no adapter
-            gL.X = -5;
-            gL.contrast = 1;
+
             
-            gR = duplicate(gL, 'gR_adapt'); % Right adapter (duplicates gL)
-            gR.X = 5;
-            gR.duration = '@gL_adapt.duration';
-            gR.frequency = '@gL_adapt.frequency';
-            gR.contrast = '@gL_adapt.contrast';
-
-
-
+            gL = stimuli.duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
+            gL.on = 0; 
+            gL.duration = 
+            gL.X = -5;
             
             %% Create Behaviours
             % Key behaviour (L for left, R for right)
             k = behaviors.keyResponse(obj.cic,'choice');
             k.verbose = false;
-            k.from = '@gL_adapt.off'; % Only start recording after adapter turns off
+            k.from = 0;
             k.maximumRT= Inf;                   %Allow inf time for a response
             k.keys = {'a' 'l'};                                 %Press 'A' for "left" gabor, 'L' for "right" gabor -> 
                                                                 %Note: This was changed

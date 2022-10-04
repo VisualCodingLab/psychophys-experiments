@@ -13,7 +13,8 @@ csf.inputs.repeat = 1;
 csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
 
 
-%% Create expermental setup
+
+%% Experiment setup
 % Define experimental setup
 d = design('contrast-freq');
 
