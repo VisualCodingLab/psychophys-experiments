@@ -1,5 +1,4 @@
-function c = gaborPostProcessing(filename, obj) 
-%GABORPOSTPROCESSING 
+function c = csfPostProcessing(filename, obj) 
 % Performs any post data processing on neurostim data
 % either via filename, in which a string is entered
 % for the filename, and random object input
@@ -7,7 +6,7 @@ function c = gaborPostProcessing(filename, obj)
 % and filename is set as 0
 
 % If in same workspace as recently run script:
-% gaborPostProcessing(c.fullFile, 0)
+% csfPostProcessing(c.fullFile, 0)
 
 if (filename == 0)
     % Use obj
