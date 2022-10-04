@@ -27,6 +27,8 @@ d.fac1.gabor_test.frequency = csf.genInputs.freq;
 % Right or left
 d.fac1.gabor_test.X = csf.genInputs.dispX;
 
+d.randomization = 'SEQUENTIAL'; % Prevent auto randomisation of inputs (as we have alread randomised them)
+
 
 blk = block('contrast-freq',d);
 blk.nrRepeats = 1;

@@ -43,7 +43,7 @@ classdef csf_base < handle
             g=stimuli.gabor(obj.cic,'gabor_test'); % Gabor to display during testing (either left or right)       
             g.color = [0.5 0.5 0.5];
             g.sigma = 0.5;    
-            g.frequency = 3;
+            g.frequency = 1;
             g.phaseSpeed = 0;
             g.orientation = 90;
             g.mask ='GAUSS3';

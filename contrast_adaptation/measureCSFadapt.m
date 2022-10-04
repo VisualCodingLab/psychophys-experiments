@@ -1,3 +1,4 @@
+clear all;
 %% Prerequisites. 
 import neurostim.*
 
@@ -18,16 +19,13 @@ adapterDurations = zeros(1, csf.genInputs.numTrials);
 numTrialsBtwAdapt = 3; % Every 3 trials through an adapter
 adapterDurations(1) = 5000; % Initial adaptation 5s
 shorterAdaptation = 1000; % 1s shofter adapters after initial adapter
-for i = (1+numTrialsBtwAdapt):numTrialsBtwAdapt:numTrials
-    if (i ~= numTrials)
+for i = (1+numTrialsBtwAdapt):numTrialsBtwAdapt:csf.genInputs.numTrials
+    if (i ~= csf.genInputs.numTrials)
         % Don't want to have an adapter and the end of the experiment
         adapterDurations(i) = shorterAdaptation;
     end
 end
 
-% Test to see if it displays it out of order??
-adapterDurations = zeros(9, 1);
-adapterDurations(1) = 5000;
 
 
 %% Experimental setup
@@ -48,6 +46,7 @@ d.fac1.gabor_test.X = csf.genInputs.dispX;
 d.fac1.gL_adapt.frequency = 5;
 d.fac1.gL_adapt.duration = adapterDurations; % Some reason the adaptation duration plays in the center? instead of at the start
 
+d.randomization = 'SEQUENTIAL'; % Prevent auto randomisation of inputs (as we have alread randomised them) + our adapters won't be all over the place
 
 blk = block('contrast-freq',d);
 blk.nrRepeats = 1;
