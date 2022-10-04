@@ -23,8 +23,7 @@ classdef csf_base < handle
             obj.cic.cursor = 'arrow';
             obj.cic.screen.color.background = 0.5*ones(1,3);
             addprop(obj.cic, 'inputs'); % Create property for inputs, so that we can access them from cic
-
-          
+            
             
             %% Create Stimuli
             % Add center point fixation 
@@ -38,9 +37,10 @@ classdef csf_base < handle
             f.Y                 = 0;
             f.on                = 0;                % Always on
             f.duration          = Inf;
+
             
             % Test gabor to display left or right
-            g=stimuli.gabor(obj.cic,'gabor_test'); % Gabor to display during testing (either left or right)       
+            g=stimuli.gabor(obj.cic,'gabor_test'); % Gabor to display during testing (either left or right) 
             g.color = [0.5 0.5 0.5];
             g.sigma = 0.5;    
             g.frequency = 1;
@@ -48,7 +48,7 @@ classdef csf_base < handle
             g.orientation = 90;
             g.mask ='GAUSS3';
             g.duration = stimulus_on_time;
-            g.on = '@gL_adapt.off'; % Turns on as soon as adapter turns off (COULD ADD A BUFFER)
+            g.on = '@gL_adapt.off + gabor_test.delay'; % Turns on as soon as adapter turns off + delay that can be specified
             g.X = 5;
             g.Y = 0;
 
@@ -69,7 +69,9 @@ classdef csf_base < handle
             gR.frequency = '@gL_adapt.frequency';
             gR.contrast = '@gL_adapt.contrast';
 
-
+            % Add additional props after duplication to gabor test:
+            g.addprop('delay');
+            g.delay = 0;
 
             
             %% Create Behaviours
@@ -99,19 +101,38 @@ classdef csf_base < handle
                 e.useMouse = true;
             end
             
-            fix = behaviors.fixate(obj.cic,'fixation');
+            fix = behaviors.fixate(obj.cic,'gabTrialFixate');
             fix.verbose = false;
-            fix.from            = 0;  % If fixation has not been achieved at this time, move to the next trial
-            fix.to              = '@choice.stopTime';   % Require fixation until the choice is done.
+            fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
+            fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
             fix.X               = 0;
             fix.Y               = 0; 
             fix.tolerance       = 2;
-            fix.failEndsTrial  = false;
+            fix.failEndsTrial  = true; % Need to take into consideration how the adapter will be replayed with the trial, if trial fails
+
+
+            adaptFix = behaviors.fixate(obj.cic,'adaptFixate');
+            adaptFix.verbose = true;
+            adaptFix.from            = 0;  % If fixation has not been achieved at this time, move to the next trial
+            adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
+            adaptFix.X               = 0;
+            adaptFix.Y               = 0; 
+            adaptFix.tolerance       = 2;
+            adaptFix.failEndsTrial  = false; 
+            adaptFix.required = false;
+        
+            
+            
+            
+
+
 
             %% Set default inputs
             obj.inputs.contrast = [0.5];
             obj.inputs.freq = [3];
             obj.inputs.repeat = 1;
+
+        
 
             %% Set random generated inputs
             obj.genInputs.contrast = [1 3 9 4 49];
