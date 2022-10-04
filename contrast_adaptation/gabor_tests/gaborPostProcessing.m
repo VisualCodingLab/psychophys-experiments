@@ -50,6 +50,7 @@ colormap(mapColours)
 h.Title = 'Effect of contrast-freq on success';
 h.YLabel = 'Contrast';
 h.XLabel = 'Frequency';
+h.ColorLimits = [0 1];
 
 
 end

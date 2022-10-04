@@ -59,7 +59,7 @@ k = behaviors.keyResponse(c,'choice');
 k.verbose = false;
 k.from = 0;
 k.maximumRT= Inf;                   %Allow inf time for a response
-k.keys = {'q' 'p'};                                 %Press 'Q' for "left" gabor, 'P' for "right" gabor -> 
+k.keys = {'a' 'l'};                                 %Press 'A' for "left" gabor, 'L' for "right" gabor -> 
                                                     %Note: This was changed
                                                     %from R & L because R
                                                     %is on the left side of
@@ -91,7 +91,7 @@ fix.failEndsTrial  = false;
 
 %% Create Inputs 
 % Contrasts & Frequencies to investigate
-input_Contrast = [0.1 0.2 0.3].^2;
+input_Contrast = [0.2 0.5 0.8].^2;
 input_Freq = [1 3 5].^2;
 
 addprop(c, 'inputs'); % Create property for inputs, so that we can access them from cic
@@ -108,7 +108,7 @@ inputContrast = reshape(repmat(input_Contrast, length(input_Freq), 1), 1, []); %
 inputFreq = repmat(input_Freq, 1, length(input_Contrast)); % i.e. If inputFreq = [1 2 3], and len(inputContrast) = 2, this generates: [1 2 3 1 2 3]
 
 % Repetitions
-repeat = 3;
+repeat = 1;
 inputContrast = repmat(inputContrast, 1, repeat);
 inputFreq = repmat(inputFreq, 1, repeat);
 
