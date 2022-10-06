@@ -28,7 +28,7 @@ d.fac1.gabor_test.frequency = csf.genInputs.freq;
 d.fac1.gabor_test.X = csf.genInputs.dispX;
 
 d.randomization = 'SEQUENTIAL'; % Prevent auto randomisation of inputs (as we have alread randomised them)
-
+d.retry = 'RANDOM';
 
 blk = block('contrast-freq',d);
 blk.nrRepeats = 1;
@@ -39,4 +39,3 @@ csf.cic.run(blk);
 % Possible to do live plotting in between trials ?
 % Gather data
 csfPostProcessing(0, csf.cic);
-
