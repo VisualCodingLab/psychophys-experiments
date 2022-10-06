@@ -62,7 +62,7 @@ classdef csf_base < handle
             % contrast (although should be 1) and duration (vector of
             % durations)
             gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
-            gL.on = 0; 
+            gL.on = '@adaptFixate.from'; 
             gL.duration = 0; % Default no adapter
             gL.X = -5;
             gL.contrast = 1;
@@ -104,20 +104,29 @@ classdef csf_base < handle
                 e = neurostim.plugins.eyetracker(obj.cic);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
                 e.useMouse = true;
             end
+
+            baseFix = behaviors.fixate(obj.cic, 'baseFixate');
+            baseFix.from = 0;
+            baseFix.to = Inf;
+            baseFix.failEndsTrial = false;
+            baseFix.required = false;
+            baseFix.tolerance = 2;
+            baseFix.X = 0;
+            baseFix.Y = 0;
             
             fix = behaviors.fixate(obj.cic,'gabTrialFixate');
-            fix.verbose = true;
+            fix.verbose = false;
             fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
             fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
             fix.X               = 0;
             fix.Y               = 0; 
             fix.tolerance       = 2;
-            fix.failEndsTrial  = true; 
-            fix.required = true; 
+            fix.failEndsTrial  = false; 
+            fix.required = false; 
 
             adaptFix = behaviors.fixate(obj.cic,'adaptFixate');
-            adaptFix.verbose = false;
-            adaptFix.from            = 0;  % If fixation has not been achieved at this time, move to the next trial
+            adaptFix.verbose = true;
+            adaptFix.from            = '@min(baseFixate.startTime.fixation, inf)';  % Up to 2 seconds to fixate 
             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
             adaptFix.X               = 0;
             adaptFix.Y               = 0; 
