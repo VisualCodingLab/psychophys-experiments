@@ -4,6 +4,8 @@ import neurostim.*
 
 %% Create CIC 
 csf = csf_base;
+csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
+
 
 %% Enter inputs
 csf.inputs.contrast = [0.3 0.5 0.8];
@@ -19,7 +21,6 @@ csf.cic.initialDelay = 1000; % Initial delay from adaptation to trial (ms) - fir
 csf.cic.seqAdaptation = [0 0 1000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 500]; % Cyclic sequence of delay from adapt to trial (ms)
 
-csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 
 
@@ -33,9 +34,6 @@ d.fac1.gabor_test.contrast = csf.genInputs.contrast;
 
 % Frequency
 d.fac1.gabor_test.frequency = csf.genInputs.freq;
-
-% Right or left
-d.fac1.gabor_test.X = csf.genInputs.dispX;
 
 % Adapter
 d.fac1.gL_adapt.frequency = 5; % Could move this to the beginTrial block for varying frequencies
@@ -75,5 +73,6 @@ function beginTrial(c)
   c.gabor_test.delay = del;
 
   % Randomise position of gabor_test (left or right)
-  c.gabor_test.X = rand()
+  randLogical = (rand()<0.5); % 1 or 0
+  c.gabor_test.X = randLogical*5 + ~randLogical * (-5);
 end

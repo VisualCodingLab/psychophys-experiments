@@ -147,7 +147,6 @@ classdef csf_base < handle
             obj.genInputs.contrast = [1 3 9 4 49];
             obj.genInputs.freq = [3];
             obj.genInputs.numTrials = 1;
-            obj.genInputs.dispX = [5];
         end
 
 
@@ -180,17 +179,11 @@ classdef csf_base < handle
                 inputFreq = inputFreq(randVector);
             end
             
-            
-            % Generate random array to determine if gabor displays left/right
-            dispX = double(rand(1, numTrials) > 0.5); 
-            dispX = dispX*2 - 1; % Turn 0 -> -1
-            dispX = dispX * 5; % Scale by 5 to move X position outward
 
             %% Save inputs to object (for testing purposes)
             obj.genInputs.contrast = inputContrast;
             obj.genInputs.freq = inputFreq;
             obj.genInputs.numTrials = numTrials;
-            obj.genInputs.dispX = dispX;
                 
             %% Save inputs to cic (for later data analysis)
             obj.cic.inputs.contrast = obj.inputs.contrast; 
@@ -198,7 +191,6 @@ classdef csf_base < handle
             obj.cic.inputs.numTrials = numTrials; 
             obj.cic.inputs.contrastFull = inputContrast;
             obj.cic.inputs.freqFull = inputFreq; % Save randomised versions
-            obj.cic.inputs.dispX = dispX;
 
         end
 
