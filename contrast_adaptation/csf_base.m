@@ -41,7 +41,7 @@ classdef csf_base < handle
             f.Y                 = 0;
             f.on                = 0;                % Always on
             f.duration          = Inf;
-
+aallaallaa
             
             % Test gabor to display left or right
             g=stimuli.gabor(obj.cic,'gabor_test'); % Gabor to display during testing (either left or right) 
@@ -52,7 +52,7 @@ classdef csf_base < handle
             g.orientation = 90;
             g.mask ='GAUSS3';
             g.duration = stimulus_on_time;
-            g.on = '@gL_adapt.off + gabor_test.delay'; % Turns on as soon as adapter turns off + delay that can be specified
+            g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
             g.X = 5;
             g.Y = 0;
 
@@ -62,7 +62,7 @@ classdef csf_base < handle
             % contrast (although should be 1) and duration (vector of
             % durations)
             gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
-            gL.on = '@adaptFixate.from'; 
+            gL.on = '@adaptFixate.startTime.fixating'; % Only turn on once particpant has started looking
             gL.duration = 0; % Default no adapter
             gL.X = -5;
             gL.contrast = 1;
@@ -82,7 +82,7 @@ classdef csf_base < handle
             % Key behaviour (L for left, R for right)
             k = behaviors.keyResponse(obj.cic,'choice');
             k.verbose = false;
-            k.from = '@gL_adapt.off'; % Only start recording after adapter turns off
+            k.from = '@gabor_test.on'; % Only start recording after test turns on
             k.maximumRT= Inf;                   %Allow inf time for a response
             k.keys = {'a' 'l'};                                 %Press 'A' for "left" gabor, 'L' for "right" gabor -> 
                                                                 %Note: This was changed
@@ -105,28 +105,20 @@ classdef csf_base < handle
                 e.useMouse = true;
             end
 
-            baseFix = behaviors.fixate(obj.cic, 'baseFixate');
-            baseFix.from = 0;
-            baseFix.to = Inf;
-            baseFix.failEndsTrial = false;
-            baseFix.required = false;
-            baseFix.tolerance = 2;
-            baseFix.X = 0;
-            baseFix.Y = 0;
-            
             fix = behaviors.fixate(obj.cic,'gabTrialFixate');
             fix.verbose = false;
             fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
             fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
+            fix.on              = '@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
             fix.Y               = 0; 
             fix.tolerance       = 2;
-            fix.failEndsTrial  = false; 
-            fix.required = false; 
+            fix.failEndsTrial  = true; 
+            fix.required = true; 
 
             adaptFix = behaviors.fixate(obj.cic,'adaptFixate');
             adaptFix.verbose = true;
-            adaptFix.from            = '@min(baseFixate.startTime.fixation, inf)';  % Up to 2 seconds to fixate 
+            adaptFix.from            = '@gL_adapt.on';  
             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
             adaptFix.X               = 0;
             adaptFix.Y               = 0; 
