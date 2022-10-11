@@ -32,6 +32,10 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
     properties 
         player
         storedDistances
+        recordedDistances
+        recordedDurations
+        durStart
+        durStop
     end
     
     % State functions
@@ -41,17 +45,46 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
         function o = fixate_adapt(c,name)
             o = o@neurostim.behaviors.eyeMovement(c,name);
             o.beforeTrialState = @o.initialFreeViewing; % Initial state at the start of each trial
-            %c.addScript('AfterTrial',@o.afterTrialFunc); % <- NOT WORKING
-            %NEED TO FIND ANOTHER WAY TO ADD AFTER TRIAL
             o.player = audioplayer(cos(1:0.5:10^5), 10000);
             o.addProperty('recordedDistance',0,'validate',@isnumeric);  % log recorded distance
             o.addProperty('recordedDuration',0,'validate',@isnumeric);  % log recorded duration
             o.storedDistances = [];
+            o.recordedDistances = [];
+            o.recordedDurations = [];
+            o.durStart = [0];
+            o.durStop = [];
         end
 
-        function afterTrialFunc(o)
+        function afterTrial(o)
             o.recordedDistance = mean(o.storedDistances);
+            o.recordedDistances = [o.recordedDistances mean(o.storedDistances)];
+
+
+            % Test for uneven stop/start - means that missing end
+            if (length(o.durStart) ~= length(o.durStop))
+                o.durStop = [o.durStop o.cic.trialTime];
+            end
+            
+            o.durStop = o.durStop(o.durStop > o.from);
+            o.durStart = o.durStart(o.durStart > o.from);
+            if (length(o.durStop) ~= length(o.durStart))
+                o.durStart = [o.from o.durStart];
+            end 
+
+            o.durStop = o.durStop(o.durStop < o.to);
+            o.durStart = o.durStart(o.durStart < o.to);
+            if (length(o.durStop) ~= length(o.durStart))
+                o.durStop = [o.durStop o.to];
+            end 
+
+            totalAccumDur = sum(o.durStop - o.durStart) / 1000;
+
+            o.recordedDuration = totalAccumDur;
+            o.recordedDurations = [o.recordedDurations totalAccumDur];
+
             o.storedDistances = []; % CALCULATE MEANS OF STORED DISTANCES + MEASURE DURATIONS 
+            o.durStart = [0];
+            o.durStop = [];
         end
         
         %% States
@@ -79,6 +112,7 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                 o.measureDistance(t,e);
                 [inside,isAllowedBlink] = isInWindow(o,e);  
                 if inside && ~isAllowedBlink
+                    o.durStop = [o.durStop t];
                     transition(o,@o.initialFixate,e);  % Note that there is no restriction on t so fixation can start any time after t.on (which is when the behavior starts running)      
                     stop(o.player);
                 else
@@ -102,6 +136,7 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                 o.measureDistance(t,e);
                 [inside,isAllowedBlink] = isInWindow(o,e);  
                 if ~inside && ~isAllowedBlink
+                    o.durStart = [o.durStart t];
                     transition(o,@o.freeViewing,e); % return to FREEVIEWING, no penalty
                     o.whileFreeviewing(t, e);
                 else
@@ -121,6 +156,7 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                 o.measureDistance(t,e);
                 [inside,isAllowedBlink] = isInWindow(o,e);  
                 if inside && ~isAllowedBlink
+                    o.durStop = [o.durStop t];
                     transition(o,@o.fixating,e);  % Note that there is no restriction on t so fixation can start any time after t.on (which is when the behavior starts running)      
                     stop(o.player);
                 else
@@ -146,6 +182,7 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                 [inside,isAllowedBlink] = isInWindow(o,e);  
                 if ~inside && ~isAllowedBlink
 %                    remove(o.iStartTime,o.stateName); % clear FIXATING startTime
+                    o.durStart = [o.durStart t];
                     transition(o,@o.freeViewing,e); % return to FREEVIEWING, no penalty
                     o.whileFreeviewing(t, e);
                 else
@@ -162,6 +199,9 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                 %o.recordedDistance = average;
             end
         end
+
+        
+
 
         function whileFreeviewing(o, t,e)
             if (t > o.from && t < o.to)

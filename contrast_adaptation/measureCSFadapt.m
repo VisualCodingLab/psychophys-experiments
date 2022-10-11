@@ -28,7 +28,6 @@ csf.cic.seqDelay = [0 0 500]; % Cyclic sequence of delay from adapt to trial (ms
 % Define experimental setup
 d = design('contrast-freq');
 
-
 % Contrast
 d.fac1.gabor_test.contrast = csf.genInputs.contrast; 
 
