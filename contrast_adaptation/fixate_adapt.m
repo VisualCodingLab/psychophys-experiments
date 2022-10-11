@@ -1,3 +1,23 @@
+% fixate_adapt
+% Custom eye movement behaviour that tracks if the eye is
+% in the required zone for a duration. If the eye is not in the zone, there
+% is an extended beep sound that is played
+%
+% Key props
+% on: When to start measuring fixation/freeviewing
+% from: When to start playing the beeping sound if not fixating
+% to: When to stop playing beeping sound 
+% 
+% Key outputs
+% @obj.startTime.initialFixate: The first time the user fixates
+% @obj.startTime.fixating: The last time the user fixated
+%
+% States
+% initialFreeViewing: Start state at each trial
+% initialFixate: Next state in each trial
+% fixating: State that records fixating after initialFixate
+% freeViewing: State that records freeviewing after initialFreeViewing
+
 classdef fixate_adapt  < neurostim.behaviors.eyeMovement
     properties (Dependent)
        isFreeViewing;
@@ -14,7 +34,7 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
         % the state where each trial will start.
         function o = fixate_adapt(c,name)
             o = o@neurostim.behaviors.eyeMovement(c,name);
-            o.beforeTrialState = @o.startViewing; % Initial state at the start of each trial 
+            o.beforeTrialState = @o.initialFreeViewing; % Initial state at the start of each trial 
             o.player = audioplayer(cos(1:0.5:10^5), 10000);
 
         end
@@ -29,15 +49,15 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
         % end (e.isExit). By checking for these events, the state can do
         % some setup - most states don't have to do anything. 
         
-        % Use startViewing state as a quick&dirty fix to the recursion
+        % Use initialFreeViewing state as a quick&dirty fix to the recursion
         % checks that neurostim/ptb does (i.e. if trial ends on
         % freeviewing, then an error will be thrown because the starting
         % state will be freeviewing, so it doesn't like
         % freeviewing->freeviewing so instead it'll be
-        % freeviewing->startviewing->freeviewing
+        % freeviewing->initialFreeViewing->freeviewing
         % Additionally, it allows to define a new startTime (to ensure it
         % isn't reset)
-        function startViewing(o, t, e)
+        function initialFreeViewing(o, t, e)
             if ~e.isRegular; return; end % No Entry/exit needed.
             if (t > o.on && t < o.to)
                 [inside,isAllowedBlink] = isInWindow(o,e);  

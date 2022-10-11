@@ -1,3 +1,15 @@
+% fixate_adapt => Custom eye movement behaviour that tracks if the eye is
+% in the required zone for a duration. If the eye is not in the zone, there
+% is an extended beep sound that is played
+%
+% Key props
+% on: When to start measuring fixation/freeviewing
+% from: When to start playing the beeping sound if not fixating
+% to: When to stop playing beeping sound 
+% 
+% Key outputs
+% @obj.startTime.
+
 classdef fixate_adapt  < neurostim.behaviors.eyeMovement
     properties (Dependent)
        isFreeViewing;
@@ -42,7 +54,7 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
             if (t > o.on && t < o.to)
                 [inside,isAllowedBlink] = isInWindow(o,e);  
                 if inside && ~isAllowedBlink
-                    transition(o,@o.fixating,e);  % Note that there is no restriction on t so fixation can start any time after t.on (which is when the behavior starts running)      
+                    transition(o,@o.initialFixate,e);  % Note that there is no restriction on t so fixation can start any time after t.on (which is when the behavior starts running)      
                     stop(o.player);
                 else
                     % Maintain freeViewing characteristics
@@ -68,7 +80,6 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                     o.whileFreeviewing(t);
                 else
                     % Stay in fixating -> do fixating stuff
-
                 end
             end
         end
