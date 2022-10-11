@@ -41,7 +41,7 @@ classdef csf_base < handle
             f.Y                 = 0;
             f.on                = 0;                % Always on
             f.duration          = Inf;
-aallaallaa
+
             
             % Test gabor to display left or right
             g=stimuli.gabor(obj.cic,'gabor_test'); % Gabor to display during testing (either left or right) 
@@ -115,6 +115,11 @@ aallaallaa
             fix.tolerance       = 2;
             fix.failEndsTrial  = true; 
             fix.required = true; 
+
+            % Sound feedback when fixate results in fail
+            plugins.sound(obj.cic); 
+            s= plugins.soundFeedback(obj.cic,'soundFeedback');
+            s.add('waveform','incorrect.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
 
             adaptFix = behaviors.fixate(obj.cic,'adaptFixate');
             adaptFix.verbose = true;
