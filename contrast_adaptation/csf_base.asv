@@ -62,7 +62,7 @@ classdef csf_base < handle
             % contrast (although should be 1) and duration (vector of
             % durations)
             gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
-            gL.on = '@adaptFixate.startTime.initialFixate'; % Only turn on once particpant has started looking
+            gL.on = '@adaptFixate.startTime.fixating'; % Only turn on once particpant has started looking
             gL.duration = 0; % Default no adapter
             gL.X = -5;
             gL.contrast = 1;
@@ -121,7 +121,7 @@ classdef csf_base < handle
             s= plugins.soundFeedback(obj.cic,'soundFeedback');
             s.add('waveform','incorrect.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
 
-            adaptFix = fixate_adapt(obj.cic,'adaptFixate');
+            adaptFix = adaptFixate(obj.cic,'adaptFixate');
             adaptFix.verbose = true;
             adaptFix.on = 0;
             adaptFix.from            = '@gL_adapt.on';  

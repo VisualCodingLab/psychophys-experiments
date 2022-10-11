@@ -3,6 +3,10 @@ classdef adaptFixate  < neurostim.behaviors.eyeMovement
        isFreeViewing;
        isFixating;
     end
+
+    properties 
+        player
+    end
     
     % State functions
     methods
@@ -10,10 +14,9 @@ classdef adaptFixate  < neurostim.behaviors.eyeMovement
         % the state where each trial will start.
         function o = adaptFixate(c,name)
             o = o@neurostim.behaviors.eyeMovement(c,name);
-            
-            o.addProperty('grace',0,'validate',@isnumeric);
-            
-            o.beforeTrialState = @o.freeViewing; % Initial state at the start of each trial            
+            o.beforeTrialState = @o.freeViewing; % Initial state at the start of each trial 
+            o.player = audioplayer(cos(1:0.5:10^5), 10000);
+
         end
         
         %% States
@@ -26,21 +29,15 @@ classdef adaptFixate  < neurostim.behaviors.eyeMovement
         % end (e.isExit). By checking for these events, the state can do
         % some setup - most states don't have to do anything. 
         function freeViewing(o,t,e)
-            % Free viewing has two transitions, either to fail (if we reach
-            % the time when the subject shoudl have been fisating (o.from)), 
-            % or to fixating (if the eye is in the window)
-            if e.isAfterTrial;transition(o,@o.fail,e);end % if still in this state-> fail
-
-            if ~e.isRegular ;return;end % Ignroe Entry/exit events.
-            
-            if t > o.from  % guard 1             
-                transition(o,@o.fail,e);     
-            else
-                [inside,isAllowedBlink] = isInWindow(o,e);  % guard 2
-                if isAllowedBlink
-                    % Stay in free viewing
-                elseif inside
-                    transition(o,@o.fixating,e);  % Note that there is no restriction on t so fixation can start any time after t.on (which is when the behavior starts running)                               
+            if (t > o.to); @o.fail; end
+            if ~e.isRegular; return; end % No Entry/exit needed.
+            if (t > o.on && t < o.to)
+                [inside,isAllowedBlink] = isInWindow(o,e);  
+                if inside && ~isAllowedBlink
+                    transition(o,@o.fixating,e);  % Note that there is no restriction on t so fixation can start any time after t.on (which is when the behavior starts running)      
+                else
+                    % Stay in freeviewing -> do freeviewing stuff
+                    o.whileFreeviewing(t);
                 end
             end
         end
@@ -50,26 +47,24 @@ classdef adaptFixate  < neurostim.behaviors.eyeMovement
         % only have to look forward (where to transition to), it does not
         % matter where we came from.
         function fixating(o,t,e)
-            if e.isAfterTrial; transition(o,@o.success,e); end % if still in this state-> success
-
+            if (t > o.to); @o.success; end
             if ~e.isRegular; return; end % No Entry/exit needed.
-           
-            % Guards
-            [inside,isAllowedBlink] = isInWindow(o,e);
-            complete = t >= o.to;
-           
-            % Transitions
-            if complete
-                transition(o,@o.success,e);
-            elseif isAllowedBlink
-                % OK stay in fixating state
-            elseif ~inside
-                if o.duration < o.grace
-                    remove(o.iStartTime,o.stateName); % clear FIXATING startTime
+
+            if (t > o.on && t < o.to)
+                [inside,isAllowedBlink] = isInWindow(o,e);  
+                if ~inside && ~isAllowedBlink
+%                    remove(o.iStartTime,o.stateName); % clear FIXATING startTime
                     transition(o,@o.freeViewing,e); % return to FREEVIEWING, no penalty
+                    o.whileFreeviewing(t);
                 else
-                    transition(o,@o.fail,e);
+                    % Stay in fixating -> do fixating stuff
                 end
+            end
+        end
+
+        function whileFreeviewing(o, t)
+            if (t > o.from && t < o.to)
+                o.
             end
         end
        
