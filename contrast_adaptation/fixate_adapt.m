@@ -43,9 +43,12 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
         % In the constructor, a behavior must define the beforeTrialState -
         % the state where each trial will start.
         function o = fixate_adapt(c,name)
+            import neurostim.*
             o = o@neurostim.behaviors.eyeMovement(c,name);
             o.beforeTrialState = @o.initialFreeViewing; % Initial state at the start of each trial
-            o.player = audioplayer(cos(1:0.5:10^5), 10000);
+            %o.player = audioplayer(cos(1:0.5:10^3), 10000); % Sound
+            %doesn't work
+            o.cic = c;
             o.addProperty('recordedDistance',0,'validate',@isnumeric);  % log recorded distance
             o.addProperty('recordedDuration',0,'validate',@isnumeric);  % log recorded duration
             o.storedDistances = [];
@@ -114,7 +117,8 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                 if inside && ~isAllowedBlink
                     o.durStop = [o.durStop t];
                     transition(o,@o.initialFixate,e);  % Note that there is no restriction on t so fixation can start any time after t.on (which is when the behavior starts running)      
-                    stop(o.player);
+                    %stop(o.player);
+                    o.setWhite;
                 else
                     % Maintain freeViewing characteristics
                     o.whileFreeviewing(t, e);
@@ -128,7 +132,8 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
         function initialFixate(o, t, e)
             if (t > o.to) 
                 @o.success; 
-                stop(o.player)
+                %stop(o.player)
+                o.setWhite;
             end
             if ~e.isRegular; return; end % No Entry/exit needed.
 
@@ -149,7 +154,8 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
         function freeViewing(o,t,e)
             if (t > o.to)
                 @o.fail; 
-                stop(o.player);
+%                 stop(o.player);
+                  o.setWhite;
             end
             if ~e.isRegular; return; end % No Entry/exit needed.
             if (t > o.on && t < o.to)
@@ -158,10 +164,11 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                 if inside && ~isAllowedBlink
                     o.durStop = [o.durStop t];
                     transition(o,@o.fixating,e);  % Note that there is no restriction on t so fixation can start any time after t.on (which is when the behavior starts running)      
-                    stop(o.player);
+%                     stop(o.player);
+                    o.setWhite;
                 else
                     % Stay in freeviewing -> do freeviewing stuff
-                    o.whileFreeviewing(t, e);
+                    o.whileFreeviewing(t, e); 
                 end
             end
         end
@@ -173,7 +180,8 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
         function fixating(o,t,e)
             if (t > o.to) 
                 @o.success; 
-                stop(o.player)
+%                 stop(o.player)
+                  o.setWhite;
             end
             if ~e.isRegular; return; end % No Entry/exit needed.
 
@@ -205,10 +213,21 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
 
         function whileFreeviewing(o, t,e)
             if (t > o.from && t < o.to)
-                play(o.player); % Keeps playing to ensure length
+%                 play(o.player); % Keeps playing to ensure length
+
+                   if (isequal(o.cic.centerPoint.color, [1 1 1]))
+                       o.cic.centerPoint.color = [1 0 0];
+                   end
             else
-                stop(o.player)
+%                 stop(o.player)
+                  o.setWhite;
             end
+        end
+        
+        function setWhite(o)
+           if (~isequal(o.cic.centerPoint.color, [1 1 1]))
+               o.cic.centerPoint.color = [1 1 1];
+           end
         end
        
     end % methods

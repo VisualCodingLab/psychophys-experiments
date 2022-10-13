@@ -112,7 +112,7 @@ classdef csf_base < handle
             fix.on              = '@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
             fix.Y               = 0; 
-            fix.tolerance       = 2;
+            fix.tolerance       = 4;
             fix.failEndsTrial  = true; 
             fix.required = true; 
 
@@ -128,7 +128,7 @@ classdef csf_base < handle
             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
             adaptFix.X               = 0;
             adaptFix.Y               = 0; 
-            adaptFix.tolerance       = 2;
+            adaptFix.tolerance       = 4;
             adaptFix.failEndsTrial  = false; 
             adaptFix.required = false;
         

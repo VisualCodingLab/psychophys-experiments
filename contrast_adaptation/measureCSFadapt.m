@@ -1,4 +1,5 @@
 clear all;
+
 %% Prerequisites. 
 import neurostim.*
 
@@ -21,8 +22,7 @@ csf.cic.initialDelay = 1000; % Initial delay from adaptation to trial (ms) - fir
 csf.cic.seqAdaptation = [0 0 1000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 500]; % Cyclic sequence of delay from adapt to trial (ms)
 
-
-
+ 
 
 %% Experimental setup
 % Define experimental setup
