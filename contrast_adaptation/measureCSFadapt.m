@@ -21,6 +21,7 @@ csf.cic.initialAdaptation = 5000; % Initial adaptation (ms) - first trial
 csf.cic.initialDelay = 1000; % Initial delay from adaptation to trial (ms) - first trial
 csf.cic.seqAdaptation = [0 0 1000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 500]; % Cyclic sequence of delay from adapt to trial (ms)
+adapterFrequency = 5;
 
  
 
@@ -35,7 +36,7 @@ d.fac1.gabor_test.contrast = csf.genInputs.contrast;
 d.fac1.gabor_test.frequency = csf.genInputs.freq;
 
 % Adapter
-d.fac1.gL_adapt.frequency = 5; % Could move this to the beginTrial block for varying frequencies
+d.fac1.gL_adapt.frequency = adapterFrequency; % Could move this to the beginTrial block for varying frequencies
 
 d.randomization = 'SEQUENTIAL'; % Prevent auto randomisation of inputs (as we have alread randomised them) + our adapters won't be all over the place
 d.retry = 'RANDOM'; 
