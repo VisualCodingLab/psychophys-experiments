@@ -53,7 +53,7 @@ for tri = 1:c.inputs.numTrials
     outArr(xIndex, yIndex) = (outArr(xIndex, yIndex) * (repCount(xIndex, yIndex)-1) + data(tri)) / repCount(xIndex, yIndex);
 end
 figure(2)
-h = heatmap(freqAxis, contrastAxis, outArr);
+h = heatmap(contrastAxis, freqAxis, outArr);
 numColours = 1000; %max(repCount(:)); % <-- Dynamic colour bar
 mapColours = ((0:numColours)/numColours).' .* repmat([0 1 0], numColours+1, 1) + ((numColours:-1:0)/numColours).' .* repmat([1 0 0], numColours+1, 1);
 colormap(mapColours)
