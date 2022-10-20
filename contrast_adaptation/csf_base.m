@@ -51,7 +51,7 @@ classdef csf_base < handle
             g.phaseSpeed = 0;
             g.orientation = 90;
             g.mask ='GAUSS3';
-            g.duration = stimulus_on_time;
+            g.duration = testStim_on_time;
             g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
             g.X = 5;
             g.Y = 0;
