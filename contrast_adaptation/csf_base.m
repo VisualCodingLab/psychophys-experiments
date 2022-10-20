@@ -38,7 +38,7 @@ classdef csf_base < handle
             % is looking at the center point fixation
             f = stimuli.fixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
             f.color             = [1 1 1];
-            f.shape             = 'STAR';           % Shape of the fixation point
+            f.shape             = 'DONUT';           % Shape of the fixation point
             f.size              = 0.25;
             f.X                 = 0;
             f.Y                 = 0;
