@@ -14,7 +14,7 @@ classdef csf_base < handle
             import neurostim.*
 
             %% Parameters
-            stimulus_on_time = 500; % ms
+            testStim_on_time = 500; % ms
 
             
             %% Setup CIC and the stimuli.
