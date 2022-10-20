@@ -1,4 +1,4 @@
-
+% Written by AS Sept/Oct 2022
 
 %% Prerequisites. 
 import neurostim.*

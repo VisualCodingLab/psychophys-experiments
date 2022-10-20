@@ -1,3 +1,5 @@
+% Taken from neurostim library
+
 function c = myRig(varargin)
 % This is a template for a convenience function that sets up a CIC object 
 % with appropriate settings for the current rig/computer. Rather than

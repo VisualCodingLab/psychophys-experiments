@@ -1,3 +1,5 @@
+% Written by AS Sept/Oct 2022
+
 clear all;
 
 %% Prerequisites. 

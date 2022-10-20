@@ -1,4 +1,6 @@
 function c = csfPostProcessing(filename, obj) 
+% Written by AS Sept/Oct 2022
+%
 % Performs any post data processing on neurostim data
 % either via filename, in which a string is entered
 % for the filename, and random object input

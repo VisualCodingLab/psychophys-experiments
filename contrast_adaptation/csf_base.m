@@ -1,3 +1,5 @@
+% Written by AS Sept/Oct 2022
+
 classdef csf_base < handle
     %MEASURECSFBASE Summary of this class goes here
     %   Detailed explanation goes here

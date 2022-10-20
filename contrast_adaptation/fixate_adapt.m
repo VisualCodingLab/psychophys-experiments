@@ -1,3 +1,5 @@
+% Adapted from fixate.m by AS Sept/Oct 2022
+%
 % fixate_adapt
 % Custom eye movement behaviour that tracks if the eye is
 % in the required zone for a duration. If the eye is not in the zone, there
