@@ -28,15 +28,13 @@ d.fac1.gabor_test.frequency = csf.genInputs.freq;
 
 
 d.randomization = 'SEQUENTIAL'; % Prevent auto randomisation of inputs (as we have alread randomised them)
-d.retry = 'RANDOM';
+d.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
 blk = block('contrast-freq',d);
 blk.nrRepeats = 1;
-csf.cic.subject = 'easyD';
 csf.cic.run(blk);
 
 %% Analyse data
-% Possible to do live plotting in between trials ?
 % Gather data
 csfPostProcessing(0, csf.cic);
 
@@ -44,5 +42,5 @@ csfPostProcessing(0, csf.cic);
 function beginTrial(c)
   % Randomise position of gabor_test (left or right)
   randLogical = (rand()<0.5); % 1 or 0
-  c.gabor_test.X = randLogical*5 + ~randLogical * (-5);
+  c.gabor_test.X = randLogical*c.testEccentricity + ~randLogical * (-1*c.testEccentricity);
 end

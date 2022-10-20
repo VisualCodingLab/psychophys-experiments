@@ -15,7 +15,7 @@ classdef csf_base < handle
 
             %% Parameters
             testStim_on_time = 500; % ms
-
+            
             
             %% Setup CIC and the stimuli.
             obj.cic = myRig;   
@@ -28,6 +28,9 @@ classdef csf_base < handle
             addprop(obj.cic, 'initialDelay');
             addprop(obj.cic, 'seqAdaptation');
             addprop(obj.cic, 'seqDelay');
+            % Additional input props
+            addprop(obj.cic, 'testEccentricity')
+            obj.cic.testEccentricity = 5; % Default to 5
             
             %% Create Stimuli
             % Add center point fixation 
@@ -53,7 +56,7 @@ classdef csf_base < handle
             g.mask ='GAUSS3';
             g.duration = testStim_on_time;
             g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
-            g.X = 5;
+            g.X = obj.cic.testEccentricity;
             g.Y = 0;
 
             % Adapter gabors
@@ -64,17 +67,24 @@ classdef csf_base < handle
             gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
             gL.on = '@adaptFixate.startTime.initialFixate'; % Only turn on once particpant has started looking
             gL.duration = 0; % Default no adapter
-            gL.X = -5;
+            gL.X = -1*obj.cic.testEccentricity;
             gL.contrast = 1;
             
             gR = duplicate(gL, 'gR_adapt'); % Right adapter (duplicates gL)
-            gR.X = 5;
+            gR.X = obj.cic.testEccentricity;
             gR.duration = '@gL_adapt.duration';
             gR.frequency = '@gL_adapt.frequency';
             gR.contrast = '@gL_adapt.contrast';
 
             % Add additional props after duplication to gabor test:
-            g.addprop('delay');
+            g.addprop('delay'); 
+            % Delay parameter acts as a stimulus input for gabor_test,
+            % whereby it specifies how much to delay the gabor trials (i.e.
+            % how much time between the adaptation and trial). It is set in
+            % the matlab runnable file (i.e. measureCSFadapt.m). It is used
+            % in the following line (in the gabTrialFixate behaviour): 
+            % fix.on = '@gL_adapt.off + gabor_test.delay';
+            % Default to no delay:
             g.delay = 0;
 
             

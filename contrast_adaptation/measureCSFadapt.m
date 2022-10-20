@@ -10,7 +10,7 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 %% Enter inputs
 csf.inputs.contrast = [0.3 0.5 0.8];
-csf.inputs.freq = [3 6 10];
+csf.inputs.freq = [3 6 10 11];
 csf.inputs.repeat = 1;
 csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
 
@@ -39,18 +39,16 @@ d.fac1.gabor_test.frequency = csf.genInputs.freq;
 d.fac1.gL_adapt.frequency = adapterFrequency; % Could move this to the beginTrial block for varying frequencies
 
 d.randomization = 'SEQUENTIAL'; % Prevent auto randomisation of inputs (as we have alread randomised them) + our adapters won't be all over the place
-d.retry = 'RANDOM'; 
+d.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
 
 blk = block('contrast-freq',d);
 blk.nrRepeats = 1;
-csf.cic.subject = 'easyD';
 csf.cic.run(blk);
 
 
 
 %% Analyse data
-% Possible to do live plotting in between trials ?
 % Gather data
 csfPostProcessing(0, csf.cic);
 
@@ -74,5 +72,5 @@ function beginTrial(c)
 
   % Randomise position of gabor_test (left or right)
   randLogical = (rand()<0.5); % 1 or 0
-  c.gabor_test.X = randLogical*5 + ~randLogical * (-5);
+  c.gabor_test.X = randLogical*c.testEccentricity + ~randLogical * (-1*c.testEccentricity);
 end
