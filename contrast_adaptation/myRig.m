@@ -90,6 +90,10 @@ switch upper(computerName)
         c.screen.frameRate  = fr;        
 end
 
+if (upper(computerName) == "ARJPC")
+    c.screen.number = 1;
+end
+
 if pin.Results.smallWindow
     c.screen.xpixels = c.screen.xpixels/2;
     c.screen.ypixels = c.screen.ypixels/2;

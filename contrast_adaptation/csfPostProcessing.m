@@ -1,5 +1,4 @@
-function c = gaborPostProcessing(filename, obj) 
-%GABORPOSTPROCESSING 
+function c = csfPostProcessing(filename, obj) 
 % Performs any post data processing on neurostim data
 % either via filename, in which a string is entered
 % for the filename, and random object input
@@ -7,7 +6,7 @@ function c = gaborPostProcessing(filename, obj)
 % and filename is set as 0
 
 % If in same workspace as recently run script:
-% gaborPostProcessing(c.fullFile, 0)
+% csfPostProcessing(csf.cic.fullFile, 0)
 
 if (filename == 0)
     % Use obj
@@ -18,13 +17,24 @@ end
 
 % Load data from cic
 [data,trial] = get(c.choice.prms.correct,'atTrialTime',Inf);
-data = double(data);
+plotData = 0;
+if (iscell(data))
+    plotData = data;
+    data = double(cell2mat(data(~cellfun('isempty',data))));
+    idx_empty = cellfun(@isempty, plotData);
+    plotData(idx_empty) = {0.5};
+    plotData = cellfun(@(x)double(x), plotData, 'UniformOutput',0);
+    plotData = (cell2mat(plotData));
+else
+    data = double(data);
+    plotData = data;
+end
 
 % Plot successes on graph
 figure(1)
-plot(trial, data,  '-o')
+plot(trial, plotData,  '-o')
 title("Correct Choices")
-ylabel("1 = Yes, 0 = No")
+ylabel("1 = Yes, 0 = No, 0.5 = Failed Trial")
 xlabel("Trial No.")
 ylim([-0.2 1.2])
 
@@ -43,7 +53,7 @@ for tri = 1:c.inputs.numTrials
     outArr(xIndex, yIndex) = (outArr(xIndex, yIndex) * (repCount(xIndex, yIndex)-1) + data(tri)) / repCount(xIndex, yIndex);
 end
 figure(2)
-h = heatmap(freqAxis, contrastAxis, outArr);
+h = heatmap(contrastAxis, freqAxis, outArr);
 numColours = 1000; %max(repCount(:)); % <-- Dynamic colour bar
 mapColours = ((0:numColours)/numColours).' .* repmat([0 1 0], numColours+1, 1) + ((numColours:-1:0)/numColours).' .* repmat([1 0 0], numColours+1, 1);
 colormap(mapColours)
