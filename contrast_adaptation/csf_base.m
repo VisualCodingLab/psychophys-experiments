@@ -20,7 +20,7 @@ classdef csf_base < handle
             
             
             %% Setup CIC and the stimuli.
-            obj.cic = myRig;   
+            obj.cic =  marmolab.rigcfg;   
             obj.cic.trialDuration = Inf; % A trial can only be ended by a mouse click
             obj.cic.cursor = 'arrow';
             obj.cic.screen.color.background = 0.5*ones(1,3);
