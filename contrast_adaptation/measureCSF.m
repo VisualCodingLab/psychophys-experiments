@@ -9,8 +9,8 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 
 %% Enter inputs
-csf.inputs.contrast = [0.3 0.5 0.8];
-csf.inputs.freq = [3 6 10];
+csf.inputs.contrast = [0.8];
+csf.inputs.freq = [0.25 0.5 1 2 3 6 10];
 csf.inputs.repeat = 1;
 csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
 
@@ -36,7 +36,7 @@ csf.cic.run(blk);
 
 %% Analyse data
 % Gather data
-csfPostProcessing(0, csf.cic);
+%csfPostProcessing(0, csf.cic);
 
 %% Functions
 function beginTrial(c)

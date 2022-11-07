@@ -11,7 +11,7 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 
 %% Enter inputs
-csf.inputs.contrast = [0.3 0.5 0.8];
+csf.inputs.contrast = [0.5];
 csf.inputs.freq = [3 6 10 11];
 csf.inputs.repeat = 1;
 csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
@@ -19,10 +19,10 @@ csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
 
 %% == Adaptations for each trial ==
 %% Create durations array for adapter
-csf.cic.initialAdaptation = 5000; % Initial adaptation (ms) - first trial
-csf.cic.initialDelay = 1000; % Initial delay from adaptation to trial (ms) - first trial
-csf.cic.seqAdaptation = [0 0 1000]; % Cyclic sequence of adaptations (ms)
-csf.cic.seqDelay = [0 0 500]; % Cyclic sequence of delay from adapt to trial (ms)
+csf.cic.initialAdaptation = 500; % Initial adaptation (ms) - first trial
+csf.cic.initialDelay = 100; % Initial delay from adaptation to trial (ms) - first trial
+csf.cic.seqAdaptation = [500 500 500]; % Cyclic sequence of adaptations (ms)
+csf.cic.seqDelay = [1000 1000 1000]; % Cyclic sequence of delay from adapt to trial (ms)
 adapterFrequency = 5;
 
  

@@ -16,12 +16,12 @@ classdef csf_base < handle
             import neurostim.*
 
             %% Parameters
-            testStim_on_time = 500; % ms
+            testStim_on_time = 250; % ms
             
             
             %% Setup CIC and the stimuli.
             obj.cic =  marmolab.rigcfg;   
-            obj.cic.trialDuration = Inf; % A trial can only be ended by a mouse click
+            obj.cic.trialDuration = 5000; % A trial can only be ended by a mouse click
             obj.cic.cursor = 'arrow';
             obj.cic.screen.color.background = 0.5*ones(1,3);
             addprop(obj.cic, 'inputs'); % Create property for inputs, so that we can access them from cic
@@ -40,7 +40,7 @@ classdef csf_base < handle
             % is looking at the center point fixation
             f = stimuli.fixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
             f.color             = [1 1 1];
-            f.shape             = 'DONUT';           % Shape of the fixation point
+            f.shape             = 'STAR';           % Shape of the fixation point
             f.size              = 0.25;
             f.X                 = 0;
             f.Y                 = 0;
@@ -57,7 +57,8 @@ classdef csf_base < handle
             g.orientation = 90;
             g.mask ='GAUSS3';
             g.duration = testStim_on_time;
-            g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
+            g.on=0;
+            %g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
             g.X = obj.cic.testEccentricity;
             g.Y = 0;
 
@@ -67,7 +68,7 @@ classdef csf_base < handle
             % contrast (although should be 1) and duration (vector of
             % durations)
             gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
-            gL.on = '@adaptFixate.startTime.initialFixate'; % Only turn on once particpant has started looking
+            gL.on = 0; %'@adaptFixate.startTime.initialFixate'; % Only turn on once particpant has started looking
             gL.duration = 0; % Default no adapter
             gL.X = -1*obj.cic.testEccentricity;
             gL.contrast = 1;
@@ -116,36 +117,36 @@ classdef csf_base < handle
                 e = neurostim.plugins.eyetracker(obj.cic);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
                 e.useMouse = true;
             end
-
-            fix = behaviors.fixate(obj.cic,'gabTrialFixate');
-            fix.verbose = false;
-            fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
-            fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
-            fix.on              = '@gL_adapt.off + gabor_test.delay';
-            fix.X               = 0;
-            fix.Y               = 0; 
-            fix.tolerance       = 4;
-            fix.failEndsTrial  = true; 
-            fix.required = true; 
+% 
+%             fix = behaviors.fixate(obj.cic,'gabTrialFixate');
+%             fix.verbose = false;
+%             fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
+%             fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
+%             fix.on              = '@gL_adapt.off + gabor_test.delay';
+%             fix.X               = 0;
+%             fix.Y               = 0; 
+%             fix.tolerance       = 10;
+%             fix.failEndsTrial  = false; 
+%             fix.required = false; 
 
             % Sound feedback when fixate results in fail
             plugins.sound(obj.cic); 
             s= plugins.soundFeedback(obj.cic,'soundFeedback');
-            s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
+            %s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
             s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
             s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
 
-            adaptFix = fixate_adapt(obj.cic,'adaptFixate');
-            adaptFix.verbose = true;
-            adaptFix.on = 0;
-            adaptFix.from            = '@gL_adapt.on';  
-            adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
-            adaptFix.X               = 0;
-            adaptFix.Y               = 0; 
-            adaptFix.tolerance       = 4;
-            adaptFix.failEndsTrial  = false; 
-            adaptFix.required = false;
-        
+%             adaptFix = fixate_adapt(obj.cic,'adaptFixate');
+%             adaptFix.verbose = true;
+%             adaptFix.on = 0;
+%             adaptFix.from            = '@gL_adapt.on';  
+%             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
+%             adaptFix.X               = 0;
+%             adaptFix.Y               = 0; 
+%             adaptFix.tolerance       = 4;
+%             adaptFix.failEndsTrial  = false; 
+%             adaptFix.required = false;
+%         
             
             
 
@@ -157,10 +158,10 @@ classdef csf_base < handle
             obj.inputs.repeat = 1;
             
             %% Set default adaptation props
-            obj.cic.initialAdaptation = 5000;
-            obj.cic.initialDelay = 1000;
-            obj.cic.seqAdaptation = [0 0 1000];
-            obj.cic.seqDelay = [0 0 500];
+            obj.cic.initialAdaptation = 0;%5000;
+            obj.cic.initialDelay = 0; %1000;
+            obj.cic.seqAdaptation = 0; %[0 0 1000];
+            obj.cic.seqDelay = 0; %[0 0 500];
         
 
             %% Set random generated inputs
