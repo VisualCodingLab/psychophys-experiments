@@ -9,9 +9,9 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 
 %% Enter inputs
-csf.inputs.contrast = [0.8];
-csf.inputs.freq = [0.25 0.5 1 2 3 6 10];
-csf.inputs.repeat = 1;
+csf.inputs.contrast = logspace(-1, 0, 10);
+csf.inputs.freq = 3;
+csf.inputs.repeat = 3;
 csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
 
 
@@ -30,9 +30,17 @@ d.fac1.gabor_test.frequency = csf.genInputs.freq;
 d.randomization = 'SEQUENTIAL'; % Prevent auto randomisation of inputs (as we have alread randomised them)
 d.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
-blk = block('contrast-freq',d);
-blk.nrRepeats = 1;
-csf.cic.run(blk);
+% blk = block('contrast-freq',d);
+% blk.nrRepeats = 1;
+for i=1:2
+    myBlock{i}=block(['contrast-freq',num2str(i)],d);             %Create a block of trials using the factorial. Type "help neurostim/block" for more options.
+    myBlock{i}.nrRepeats=csf.inputs.repeat;
+    myBlock{i}.afterMessage = 'Take a break!';
+    myBlock{i}.beforeMessage = ['Block ', num2str(i) ' of ' num2str(2)];
+end
+
+
+csf.cic.run(myBlock{:});
 
 %% Analyse data
 % Gather data
