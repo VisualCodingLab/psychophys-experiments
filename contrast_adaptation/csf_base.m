@@ -38,10 +38,8 @@ classdef csf_base < handle
             % Add center point fixation 
             % Note: Could possible add eye tracker to see if participant
             % is looking at the center point fixation
-            f = stimuli.fixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
+            f = ABCfixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
             f.color             = [1 1 1];
-            f.shape             = 'STAR';           % Shape of the fixation point
-            f.size              = 0.25;
             f.X                 = 0;
             f.Y                 = 0;
             f.on                = 0;                % Always on
@@ -51,10 +49,12 @@ classdef csf_base < handle
             % Test gabor to display left or right
             g=stimuli.gabor(obj.cic,'gabor_test'); % Gabor to display during testing (either left or right) 
             g.color = [0.5 0.5 0.5];
-            g.sigma = 0.5;    
+            g.sigma = 0.75;
             g.frequency = 1;
             g.phaseSpeed = 0;
             g.orientation = 90;
+            g.width = 5;
+            g.height = 5;
             g.mask ='GAUSS3';
             g.duration = testStim_on_time;
             g.on=0;
@@ -130,11 +130,11 @@ classdef csf_base < handle
 %             fix.required = false; 
 
             % Sound feedback when fixate results in fail
-            plugins.sound(obj.cic); 
-            s= plugins.soundFeedback(obj.cic,'soundFeedback');
+%             plugins.sound(obj.cic); 
+%             s= plugins.soundFeedback(obj.cic,'soundFeedback');
             %s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
-            s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-            s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+%             s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
+%             s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
 
 %             adaptFix = fixate_adapt(obj.cic,'adaptFixate');
 %             adaptFix.verbose = true;

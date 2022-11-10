@@ -11,7 +11,7 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 %% Enter inputs
 csf.inputs.contrast = logspace(-1, 0, 10);
 csf.inputs.freq = 3;
-csf.inputs.repeat = 3;
+csf.inputs.repeat = 1;
 csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
 
 
