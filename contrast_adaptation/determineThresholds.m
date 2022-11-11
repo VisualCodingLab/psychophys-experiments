@@ -43,8 +43,10 @@ options.expType     = '2AFC';   % choose 2-AFC as the paradigm of the experiment
                                 % this sets the guessing rate to .5 and
                                 % fits the rest of the parameters
 
-threshTable = nan(nFreq, 4);
-                                
+thresholds = table('Size', [nFreq 4], ...
+                   'VariableNames', ["SF", "Thresh", "95CIU", "95CIL"], ...
+                   'VariableTypes', ["double", "double", "double", "double"]);
+%%                                
 figure(1); clf;
 for iFreq = 1:nFreq % analyse each frequency separately
     subplot(1,nFreq, iFreq);
@@ -52,16 +54,17 @@ for iFreq = 1:nFreq % analyse each frequency separately
     result = psignifit(data,options);
     plotPsych(result);
     
-    thresh = exp(result.Fit(1));
-    ciu = exp(result.conf_Intervals(1,1,3));
-    cil = exp(result.conf_Intervals(1,2,3));
+    % these values are exp(1/X) because: 
+    %    sensitivity is 1/threshold
+    %    exp undoes the log transform we applied above.
+    
+    thresh = exp(1/result.Fit(1));
+    ciu = exp(1/result.conf_Intervals(1,1,3));
+    cil = exp(1/result.conf_Intervals(1,2,3));
 
     % put thresholds and confidence intervals in a table for further
     % analysis
-    threshTable(iFreq,1) = fList(iFreq);
-    threshTable(iFreq,2) = thresh; 
-    threshTable(iFreq,3) = ciu;
-    threshTable(iFreq,4) = cil;
+    thresholds(iFreq,:) = {fList(iFreq),thresh, ciu, cil};
     
     txt = sprintf('%1.1f cpd: %3.3f (%3.3f, %3.3f)', ...
                 fList(iFreq), thresh, ciu, cil);
