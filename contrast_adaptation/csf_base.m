@@ -110,21 +110,21 @@ classdef csf_base < handle
             
             %% Enforce Fixation at Center
             %Make sure there is an eye tracker (or at least a virtual one)
-%             if isempty(obj.cic.pluginsByClass('eyetracker'))
-%                 e = neurostim.plugins.eyetracker(obj.cic);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
-%                 e.useMouse = true;
-%             end
-% 
-%             fix = behaviors.fixate(obj.cic,'gabTrialFixate');
-%             fix.verbose = false;
-%             fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
-%             fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
-%             fix.on              = '@gL_adapt.off + gabor_test.delay';
-%             fix.X               = 0;
-%             fix.Y               = 0; 
-%             fix.tolerance       = 10;
-%             fix.failEndsTrial  = false; 
-%             fix.required = false; 
+            if isempty(obj.cic.pluginsByClass('eyetracker'))
+                e = neurostim.plugins.eyetracker(obj.cic);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
+                e.useMouse = true;
+            end
+
+            fix = behaviors.fixate(obj.cic,'gabTrialFixate');
+            fix.verbose = false;
+            fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
+            fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
+            fix.on              = '@gL_adapt.off + gabor_test.delay';
+            fix.X               = 0;
+            fix.Y               = 0; 
+            fix.tolerance       = 0.5;
+            fix.failEndsTrial  = false; 
+            fix.required = false; 
 
             % Sound feedback when fixate results in fail
 %             plugins.sound(obj.cic); 
@@ -133,16 +133,16 @@ classdef csf_base < handle
 %             s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
 %             s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
 
-%             adaptFix = fixate_adapt(obj.cic,'adaptFixate');
-%             adaptFix.verbose = true;
-%             adaptFix.on = 0;
-%             adaptFix.from            = '@gL_adapt.on';  
-%             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
-%             adaptFix.X               = 0;
-%             adaptFix.Y               = 0; 
-%             adaptFix.tolerance       = 4;
-%             adaptFix.failEndsTrial  = false; 
-%             adaptFix.required = false;
+            adaptFix = fixate_adapt(obj.cic,'adaptFixate');
+            adaptFix.verbose = true;
+            adaptFix.on = 0;
+            adaptFix.from            = '@gL_adapt.on';  
+            adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
+            adaptFix.X               = 0;
+            adaptFix.Y               = 0; 
+            adaptFix.tolerance       = 0.5;
+            adaptFix.failEndsTrial  = false; 
+            adaptFix.required = false;
 %         
             
         end
