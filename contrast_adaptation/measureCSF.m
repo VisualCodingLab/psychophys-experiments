@@ -12,8 +12,8 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 csf.inputs.contrast = logspace(-1, 0, 2);
 csf.inputs.freq = 3;
 csf.inputs.repeat = 2;
+csf.inputs.nBlocks = 4;
 csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
-
 
 
 %% Experiment setup
@@ -32,11 +32,11 @@ d.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation 
 
 % blk = block('contrast-freq',d);
 % blk.nrRepeats = 1;
-for i=1:4
+for i=1:csf.inputs.nBlocks
     myBlock{i}=block(['contrast-freq',num2str(i)],d);             %Create a block of trials using the factorial. Type "help neurostim/block" for more options.
-    myBlock{i}.nrRepeats=csf.inputs.repeat;
+    myBlock{i}.nrRepeats=1;
     myBlock{i}.afterMessage = 'Take a break!';
-    myBlock{i}.beforeMessage = ['Block ', num2str(i) ' of ' num2str(2)];
+    myBlock{i}.beforeMessage = ['Block ', num2str(i) ' of ' num2str(csf.inputs.nBlocks)];
 end
 
 
@@ -50,5 +50,8 @@ csf.cic.run(myBlock{:});
 function beginTrial(c)
   % Randomise position of gabor_test (left or right)
   randLogical = (rand()<0.5); % 1 or 0
-  c.gabor_test.X = randLogical*c.testEccentricity + ~randLogical * (-1*c.testEccentricity);
+  eccentricity = c.gR_adapt.X;
+  c.gabor_test.X = randLogical*eccentricity + ~randLogical * (-1*eccentricity);
+  
+  fprintf('Duration: %3.2f, Delay: %3.2f\n', c.gL_adapt.duration, c.gabor_test.delay);
 end
