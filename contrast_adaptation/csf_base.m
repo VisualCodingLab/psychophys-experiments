@@ -1,4 +1,5 @@
 % Written by AS Sept/Oct 2022
+% --- modified LZ Nov 2022
 
 classdef csf_base < handle
     %MEASURECSFBASE Summary of this class goes here
@@ -19,7 +20,7 @@ classdef csf_base < handle
 
             % Setup CIC and the stimuli.
             obj.cic =  marmolab.rigcfg;   
-            obj.cic.trialDuration = 5000; % A trial can only be ended by a mouse click
+            obj.cic.trialDuration = Inf; % A trial can only be ended by a mouse click
             obj.cic.cursor = 'arrow';
             obj.cic.screen.color.background = 0.5*ones(1,3);
             
@@ -109,10 +110,10 @@ classdef csf_base < handle
             
             %% Enforce Fixation at Center
             %Make sure there is an eye tracker (or at least a virtual one)
-            if isempty(obj.cic.pluginsByClass('eyetracker'))
-                e = neurostim.plugins.eyetracker(obj.cic);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
-                e.useMouse = true;
-            end
+%             if isempty(obj.cic.pluginsByClass('eyetracker'))
+%                 e = neurostim.plugins.eyetracker(obj.cic);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
+%                 e.useMouse = true;
+%             end
 % 
 %             fix = behaviors.fixate(obj.cic,'gabTrialFixate');
 %             fix.verbose = false;
@@ -144,75 +145,8 @@ classdef csf_base < handle
 %             adaptFix.required = false;
 %         
             
-            
-
-
-
-            %% Set default inputs
-            obj.inputs.contrast = [0.5];
-            obj.inputs.freq = [3];
-            obj.inputs.repeat = 1;
-            
-            %% Set default adaptation props
-            obj.cic.initialAdaptation = 0;%5000;
-            obj.cic.initialDelay = 0; %1000;
-            obj.cic.seqAdaptation = 0; %[0 0 1000];
-            obj.cic.seqDelay = 0; %[0 0 500];
-        
-
-            %% Set random generated inputs
-            obj.genInputs.contrast = [1 3 9 4 49];
-            obj.genInputs.freq = [3];
-            obj.genInputs.numTrials = 1;
         end
-
-
-        
-        function generateInputs(obj)
-            %% Prerequisites. 
-            import neurostim.*
-            
-            %% Create Inputs
-            % Combine variables 
-            % Note: We could do it via .fac1, .fac2, however this would mean that one
-            % contrast or frequency would remain constant whilst going through fac2
-            % (i.e. not random on both dimensions). So only use one .fac1
-            % The lengths of both arrays should now match, and each corresponding point represents a
-            % trial
-            inputContrast = reshape(repmat(obj.inputs.contrast, length(obj.inputs.freq), 1), 1, []); % i.e. If inputContrast = [1 2 3] and len(inputFreq) = 2, this generates: [1 1 2 2 3 3]
-            inputFreq = repmat(obj.inputs.freq, 1, length(obj.inputs.contrast)); % i.e. If inputFreq = [1 2 3], and len(inputContrast) = 2, this generates: [1 2 3 1 2 3]
-            
-            % Repetitions
-            inputContrast = repmat(inputContrast, 1, obj.inputs.repeat);
-            inputFreq = repmat(inputFreq, 1, obj.inputs.repeat);
-            
-            numTrials = length(inputContrast);
-            
-            % Randomise
-            randomise = true;
-            if (randomise)
-                randVector = randperm(numTrials); % Generate random vector and use for BOTH of the input arrays to randomise but keep correspondance
-                inputContrast = inputContrast(randVector);
-                inputFreq = inputFreq(randVector);
-            end
-            
-
-            %% Save inputs to object (for testing purposes)
-            obj.genInputs.contrast = inputContrast;
-            obj.genInputs.freq = inputFreq;
-            obj.genInputs.numTrials = numTrials;
-                
-            %% Save inputs to cic (for later data analysis)
-            obj.cic.inputs.contrast = obj.inputs.contrast; 
-            obj.cic.inputs.frequency = obj.inputs.freq; % Save pre-randomised versions (raw)
-            obj.cic.inputs.numTrials = numTrials; 
-            obj.cic.inputs.contrastFull = inputContrast;
-            obj.cic.inputs.freqFull = inputFreq; % Save randomised versions
-
-        end
-
-
-        
+  
     end
 end
 
