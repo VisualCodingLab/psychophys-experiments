@@ -6,33 +6,28 @@ classdef csf_base < handle
     
     properties
         cic
-        inputs
-        genInputs
+        
+        testDuration = 250;     % (ms) how long test gabor is visible for
+        testEccentricity = 5;   % how eccentric test (and adapt) are from fixation
+        adapterFrequency = 2;   % spatial frequency of adaptors
     end
     
     methods
         function obj = csf_base()
-            %% Prerequisites. 
+            % Prerequisites. 
             import neurostim.*
 
-            %% Parameters
-            testStim_on_time = 250; % ms
-            
-            
-            %% Setup CIC and the stimuli.
+            % Setup CIC and the stimuli.
             obj.cic =  marmolab.rigcfg;   
             obj.cic.trialDuration = 5000; % A trial can only be ended by a mouse click
             obj.cic.cursor = 'arrow';
             obj.cic.screen.color.background = 0.5*ones(1,3);
-            addprop(obj.cic, 'inputs'); % Create property for inputs, so that we can access them from cic
+            
             % Adaptation props
             addprop(obj.cic, 'initialAdaptation');
             addprop(obj.cic, 'initialDelay');
             addprop(obj.cic, 'seqAdaptation');
             addprop(obj.cic, 'seqDelay');
-            % Additional input props
-            addprop(obj.cic, 'testEccentricity')
-            obj.cic.testEccentricity = 5; % Default to 5
             
             %% Create Stimuli
             % Add center point fixation 
@@ -56,10 +51,10 @@ classdef csf_base < handle
             g.width = 5;
             g.height = 5;
             g.mask ='GAUSS3';
-            g.duration = testStim_on_time;
-            g.on=0;
+            g.duration = obj.testDuration;
+            g.on= '@gL_adapt.duration + gabor_test.delay';
             %g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
-            g.X = obj.cic.testEccentricity;
+            g.X = obj.testEccentricity;
             g.Y = 0;
 
             % Adapter gabors
@@ -70,11 +65,12 @@ classdef csf_base < handle
             gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
             gL.on = 0; %'@adaptFixate.startTime.initialFixate'; % Only turn on once particpant has started looking
             gL.duration = 0; % Default no adapter
-            gL.X = -1*obj.cic.testEccentricity;
+            gL.X = -1*obj.testEccentricity;
             gL.contrast = 1;
+            gL.frequency = obj.adapterFrequency;
             
             gR = duplicate(gL, 'gR_adapt'); % Right adapter (duplicates gL)
-            gR.X = obj.cic.testEccentricity;
+            gR.X = obj.testEccentricity;
             gR.duration = '@gL_adapt.duration';
             gR.frequency = '@gL_adapt.frequency';
             gR.contrast = '@gL_adapt.contrast';
