@@ -2,77 +2,84 @@
 
 clear all;
 
-%% Prerequisites. 
+% dependencies
 import neurostim.*
 
-%% Create CIC 
+% Create CIC 
 csf = csf_base;
 csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
+% Enter inputs
+contrastList   = [0.3 0.5];
+freqList       = [1 3 4]; 
+nBlocksPerCond = 1;     % conditions: Adapt/no-adapt
+nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
 
-%% Enter inputs
-csf.inputs.contrast = [0.5];
-csf.inputs.freq = [3 6 10 11];
-csf.inputs.repeat = 1;
-csf.generateInputs(); % Randomised inputs are saved to csf.genInputs
+% == Adaptations for each trial ==
+% Create durations array for adapter
+csf.testDuration = 250;
+csf.testEccentricity = 5; 
+csf.adapterFrequency = 1;
 
+csf.cic.initialAdaptation = 2000; % Initial adaptation (ms) - first trial
+csf.cic.initialDelay = 1000; % Initial delay from adaptation to trial (ms) - first trial
+csf.cic.seqAdaptation = [0 0 0 0 1000]; % Cyclic sequence of adaptations (ms)
+csf.cic.seqDelay = [0 0 0 0 1000]; % Cyclic sequence of delay from adapt to trial (ms)
 
-%% == Adaptations for each trial ==
-%% Create durations array for adapter
-csf.cic.initialAdaptation = 500; % Initial adaptation (ms) - first trial
-csf.cic.initialDelay = 100; % Initial delay from adaptation to trial (ms) - first trial
-csf.cic.seqAdaptation = [500 500 500]; % Cyclic sequence of adaptations (ms)
-csf.cic.seqDelay = [1000 1000 1000]; % Cyclic sequence of delay from adapt to trial (ms)
-adapterFrequency = 5;
-
- 
-
-%% Experimental setup
+% Experimental setup
 % Define experimental setup
-d = design('contrast-freq');
+d{1} = design('Adapt');
+d{1}.fac1.gL_adapt.contrast = 1;
+d{1}.fac2.gabor_test.contrast = contrastList;
+d{1}.fac3.gabor_test.frequency = freqList;
+d{1}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
-% Contrast
-d.fac1.gabor_test.contrast = csf.genInputs.contrast; 
+d{2}= design('No-Adapt');
+d{2}.fac1.gL_adapt.contrast = 0;
+d{2}.fac2.gabor_test.contrast = contrastList; %csf.genInputs.contrast; 
+d{2}.fac3.gabor_test.frequency = freqList; %csf.genInputs.freq;
+d{2}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
-% Frequency
-d.fac1.gabor_test.frequency = csf.genInputs.freq;
+% load designs into blocks
+designOrder = mod(ceil(0:0.5:nBlocksPerCond),2)+1; %ABBABB etc.
 
-% Adapter
-d.fac1.gL_adapt.frequency = adapterFrequency; % Could move this to the beginTrial block for varying frequencies
+nBlocks = nBlocksPerCond*2;
+for i=1:nBlocks
+    myBlock{i}=block([d{designOrder(i)}.name num2str(i)],d{designOrder(i)});             %Create a block of trials using the factorial. Type "help neurostim/block" for more options.
+    myBlock{i}.nrRepeats=nRepeatsPerCond;
+    myBlock{i}.afterMessage = 'Take a break!';
+    myBlock{i}.beforeMessage = ['Block ', num2str(i) ' of ' num2str(nBlocks)];
+end
 
-d.randomization = 'SEQUENTIAL'; % Prevent auto randomisation of inputs (as we have alread randomised them) + our adapters won't be all over the place
-d.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
-
-
-blk = block('contrast-freq',d);
-blk.nrRepeats = 1;
-csf.cic.run(blk);
-
-
-
-%% Analyse data
-% Gather data
-csfPostProcessing(0, csf.cic);
-
+%%
+csf.cic.run(myBlock{:});
 
 %% Functions
 function beginTrial(c)
   % Start each trial with adapter (according to sequence)
-  if (c.trial == 1)
-    % Initial adaptation
-    dur = c.initialAdaptation;
-    del = c.initialDelay;
+  if c.gL_adapt.contrast > 0 % if an adapt block, use timings else, be speedy
+      if (c.blockTrial == 1)
+        % Initial adaptation
+        dur = c.initialAdaptation;
+        del = c.initialDelay;
+      else
+          seqLength = length(c.seqAdaptation);
+          seqIndex = mod(c.blockTrial-2, seqLength)+1; % Cyclicly select sequences
+          dur = c.seqAdaptation(seqIndex);
+          del = c.seqDelay(seqIndex);
+      end
   else
-      seqLength = length(c.seqAdaptation);
-      seqIndex = mod(c.trial-2, seqLength)+1; % Cyclicly select sequences
-      dur = c.seqAdaptation(seqIndex);
-      del = c.seqDelay(seqIndex);
+      dur = 0;
+      del = 0;
   end
   
   c.gL_adapt.duration = dur; 
   c.gabor_test.delay = del;
+  fprintf('Duration: %3.2f, Delay: %3.2f\n', dur, del);
 
   % Randomise position of gabor_test (left or right)
   randLogical = (rand()<0.5); % 1 or 0
-  c.gabor_test.X = randLogical*c.testEccentricity + ~randLogical * (-1*c.testEccentricity);
+  eccentricity = c.gR_adapt.X;
+  c.gabor_test.X = randLogical*eccentricity + ~randLogical * (-1*eccentricity);
+  
 end
