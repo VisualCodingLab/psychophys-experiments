@@ -10,21 +10,21 @@ csf = csf_base;
 csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 % Enter inputs
-contrastList   = [0.3 0.5];
-freqList       = [1 3 4]; 
-nBlocksPerCond = 1;     % conditions: Adapt/no-adapt
+contrastList   = logspace(-2.1, -0.3, 11);
+freqList       = logspace(-0.3, 1.25, 12); 
+nBlocksPerCond = 5;     % conditions: Adapt/no-adapt
 nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
 
 % == Adaptations for each trial ==
 % Create durations array for adapter
 csf.testDuration = 250;
 csf.testEccentricity = 5; 
-csf.adapterFrequency = 1;
+csf.adapterFrequency = 2.5;
 
-csf.cic.initialAdaptation = 2000; % Initial adaptation (ms) - first trial
-csf.cic.initialDelay = 1000; % Initial delay from adaptation to trial (ms) - first trial
-csf.cic.seqAdaptation = [0 0 0 0 1000]; % Cyclic sequence of adaptations (ms)
-csf.cic.seqDelay = [0 0 0 0 1000]; % Cyclic sequence of delay from adapt to trial (ms)
+csf.cic.initialAdaptation = 10000; % Initial adaptation (ms) - first trial
+csf.cic.initialDelay = 500; % Initial delay from adaptation to trial (ms) - first trial
+csf.cic.seqAdaptation = [0 0 0 0 0 0 0 0 0 5000]; % Cyclic sequence of adaptations (ms)
+csf.cic.seqDelay = [0 0 0 0 0 0 0 0 0 250]; % Cyclic sequence of delay from adapt to trial (ms)
 
 % Experimental setup
 % Define experimental setup
@@ -71,6 +71,11 @@ function beginTrial(c)
   else
       dur = 0;
       del = 0;
+  end
+  if dur == 0 % disable eyetracker behaviour for adaptation
+      c.adaptFixate.on = Inf;
+  else 
+      c.adaptFixate.on = 0;
   end
   
   c.gL_adapt.duration = dur; 
