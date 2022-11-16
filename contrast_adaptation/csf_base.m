@@ -122,17 +122,17 @@ classdef csf_base < handle
             fix.on              = '@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
             fix.Y               = 0; 
-            fix.tolerance       = 0.5;
+            fix.tolerance       = 1;
             fix.failEndsTrial  = false; 
             fix.required = false; 
 
 %             Sound feedback when fixate results in fail
             plugins.sound(obj.cic); 
             s= plugins.soundFeedback(obj.cic,'soundFeedback');
-%             s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
+            s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
             s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
             s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
-
+% 
             adaptFix = fixate_adapt(obj.cic,'adaptFixate');
             adaptFix.verbose = true;
             adaptFix.on = 0;
@@ -140,7 +140,7 @@ classdef csf_base < handle
             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
             adaptFix.X               = 0;
             adaptFix.Y               = 0; 
-            adaptFix.tolerance       = 0.5;
+            adaptFix.tolerance       = 1;
             adaptFix.failEndsTrial  = false; 
             adaptFix.required = false;
 %         
