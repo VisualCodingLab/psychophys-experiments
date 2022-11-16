@@ -36,7 +36,7 @@ classdef csf_base < handle
             % is looking at the center point fixation
             f = stimuli.fixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
             f.shape             = 'ABC';
-            f.color             = '@iff(gabTrialFixate.isFixating,7,6)'; % 6 = bg/red, 7 = bg/green
+            f.color             = '@iff(gabTrialFixate.isFixating,[1 1 1],[1 0 0])';
             f.color2            = obj.cic.screen.color.background;
             f.size              = 0.75; 
             f.size2             = 0.15;
@@ -118,36 +118,36 @@ classdef csf_base < handle
                 e.useMouse = true;
             end
 
-            fix = behaviors.fixate(obj.cic,'gabTrialFixate');
-            fix.verbose = false;
-            fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
+            fix =marmolab.behaviors.fixate(obj.cic,'gabTrialFixate');
+            fix.verbose         = true;
+            fix.from            = 0; %'@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
             fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
-            fix.on              = '@gL_adapt.off + gabor_test.delay';
+            fix.on              = 0; %'@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
             fix.Y               = 0; 
-            fix.tolerance       = 1;
+            fix.tolerance       = 5;
             fix.failEndsTrial  = false; 
             fix.required = false; 
 
 %             Sound feedback when fixate results in fail
             if ~ismac
-                plugins.sound(obj.cic); 
-                s= plugins.soundFeedback(obj.cic,'soundFeedback');
-                s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
-                s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-                s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+            plugins.sound(obj.cic); 
+            s= plugins.soundFeedback(obj.cic,'soundFeedback');
+            s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
+            s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
+            s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
             end 
 
-            adaptFix = fixate_adapt(obj.cic,'adaptFixate');
-            adaptFix.verbose = true;
-            adaptFix.on = 0;
-            adaptFix.from            = '@gL_adapt.on';  
-            adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
-            adaptFix.X               = 0;
-            adaptFix.Y               = 0; 
-            adaptFix.tolerance       = 1;
-            adaptFix.failEndsTrial  = false; 
-            adaptFix.required = false;
+%             adaptFix = fixate_adapt(obj.cic,'adaptFixate');
+%             adaptFix.verbose = true;
+%             adaptFix.on = 0;
+%             adaptFix.from            = '@gL_adapt.on';  
+%             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
+%             adaptFix.X               = 0;
+%             adaptFix.Y               = 0; 
+%             adaptFix.tolerance       = 1;
+%             adaptFix.failEndsTrial  = false; 
+%             adaptFix.required = false;
 %         
             
         end

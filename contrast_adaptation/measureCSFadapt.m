@@ -21,7 +21,7 @@ csf.testDuration = 250;
 csf.testEccentricity = 5; 
 csf.adapterFrequency = 2.5;
 
-csf.cic.initialAdaptation = 10000; % Initial adaptation (ms) - first trial
+csf.cic.initialAdaptation = 20000; % Initial adaptation (ms) - first trial
 csf.cic.initialDelay = 500; % Initial delay from adaptation to trial (ms) - first trial
 csf.cic.seqAdaptation = [0 0 0 0 0 0 0 0 0 5000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 0 0 0 0 0 0 0 250]; % Cyclic sequence of delay from adapt to trial (ms)
@@ -71,15 +71,10 @@ function beginTrial(c)
   else
       dur = 0;
       del = 0;
-  end
-  if dur == 0 % disable eyetracker behaviour for adaptation
-      c.adaptFixate.on = Inf;
-  else 
-      c.adaptFixate.on = 0;
-  end
-  
+  end  
   c.gL_adapt.duration = dur; 
   c.gabor_test.delay = del;
+  
   fprintf('Duration: %3.2f, Delay: %3.2f\n', dur, del);
 
   % Randomise position of gabor_test (left or right)
