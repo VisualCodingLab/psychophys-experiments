@@ -34,13 +34,16 @@ classdef csf_base < handle
             % Add center point fixation 
             % Note: Could possible add eye tracker to see if participant
             % is looking at the center point fixation
-            f = ABCfixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
-            f.color             = [1 1 1];
+            f = stimuli.fixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
+            f.shape             = 'ABC';
+            f.color             = '@iff(gabTrialFixate.isFixating,7,6)'; % 6 = bg/red, 7 = bg/green
+            f.color2            = obj.cic.screen.color.background;
+            f.size              = 0.75; 
+            f.size2             = 0.15;
             f.X                 = 0;
             f.Y                 = 0;
             f.on                = 0;                % Always on
             f.duration          = Inf;
-
             
             % Test gabor to display left or right
             g=stimuli.gabor(obj.cic,'gabor_test'); % Gabor to display during testing (either left or right) 
