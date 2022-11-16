@@ -127,12 +127,14 @@ classdef csf_base < handle
             fix.required = false; 
 
 %             Sound feedback when fixate results in fail
-            plugins.sound(obj.cic); 
-            s= plugins.soundFeedback(obj.cic,'soundFeedback');
-            s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
-            s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-            s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
-% 
+            if ~ismac
+                plugins.sound(obj.cic); 
+                s= plugins.soundFeedback(obj.cic,'soundFeedback');
+                s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
+                s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
+                s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+            end 
+
             adaptFix = fixate_adapt(obj.cic,'adaptFixate');
             adaptFix.verbose = true;
             adaptFix.on = 0;
