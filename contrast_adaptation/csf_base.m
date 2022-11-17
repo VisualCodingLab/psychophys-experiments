@@ -36,7 +36,7 @@ classdef csf_base < handle
             % is looking at the center point fixation
             f = stimuli.fixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
             f.shape             = 'ABC';
-            f.color             = '@iff(gabTrialFixate.isFixating,[1 1 1],[1 0 0])';
+            f.color             = [1 1 1];
             f.color2            = obj.cic.screen.color.background;
             f.size              = 0.75; 
             f.size2             = 0.15;
@@ -56,8 +56,8 @@ classdef csf_base < handle
             g.height = 5;
             g.mask ='GAUSS3';
             g.duration = obj.testDuration;
-            g.on= '@gL_adapt.duration + gabor_test.delay';
-            %g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
+            %g.on= '@gL_adapt.duration + gabor_test.delay';
+            g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
             g.X = obj.testEccentricity;
             g.Y = 0;
 
@@ -67,7 +67,7 @@ classdef csf_base < handle
             % contrast (although should be 1) and duration (vector of
             % durations)
             gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
-            gL.on = 0; %'@adaptFixate.startTime.initialFixate'; % Only turn on once particpant has started looking
+            gL.on = '@adaptFixate.startTime.initialFixate'; % Only turn on once particpant has started looking
             gL.duration = 0; % Default no adapter
             gL.X = -1*obj.testEccentricity;
             gL.contrast = 1;
@@ -118,11 +118,11 @@ classdef csf_base < handle
                 e.useMouse = true;
             end
 
-            fix =marmolab.behaviors.fixate(obj.cic,'gabTrialFixate');
+            fix = behaviors.fixate(obj.cic,'gabTrialFixate');
             fix.verbose         = true;
             fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
             fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
-            fix.on              = 0; %'@gL_adapt.off + gabor_test.delay';
+            fix.on              = '@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
             fix.Y               = 0; 
             fix.tolerance       = 5;
