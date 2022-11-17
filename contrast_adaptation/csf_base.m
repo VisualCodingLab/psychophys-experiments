@@ -36,7 +36,7 @@ classdef csf_base < handle
             % is looking at the center point fixation
             f = stimuli.fixation(obj.cic,'centerPoint');       % Add a fixation point stimulus
             f.shape             = 'ABC';
-            f.color             = '@iff(gabTrialFixate.isFixating,[1 1 1],[1 0 0])';
+            f.color             = [1 1 1];
             f.color2            = obj.cic.screen.color.background;
             f.size              = 0.75; 
             f.size2             = 0.15;
@@ -56,8 +56,8 @@ classdef csf_base < handle
             g.height = 5;
             g.mask ='GAUSS3';
             g.duration = obj.testDuration;
-            g.on= '@gL_adapt.duration + gabor_test.delay';
-            %g.on = '@gabTrialFixate.startTime.fixating'; % Turns on as soon as adapter turns off + delay that can be specified
+            g.on = '@min(gabTrialFixate.startTime.fixating, gabTrialFixate.on + gabor_test.waitFixate)'; % Turns on as soon as adapter turns off + delay that can be specified
+            %g.on = '@gabTrialFixate.startTime.fixating';
             g.X = obj.testEccentricity;
             g.Y = 0;
 
@@ -67,7 +67,11 @@ classdef csf_base < handle
             % contrast (although should be 1) and duration (vector of
             % durations)
             gL = duplicate(g,'gL_adapt'); % Additional gabor to display for adapting image (left acts as master)
-            gL.on = 0; %'@adaptFixate.startTime.initialFixate'; % Only turn on once particpant has started looking
+            % Below statement: If duration is 0 (i.e. no adapter), then
+            % turn the stimuli on immediately (don't wait for fixation) to
+            % prevent double fixation waiting time
+            gL.on = '@iff(gL_adapt.duration == 0, 100, (min(adaptFixate.startTime.initialFixate, adaptFixate.on + gL_adapt.waitFixate)))'; % Only turn on once particpant has started looking
+            %gL.on = '@adaptFixate.startTime.initialFixate';
             gL.duration = 0; % Default no adapter
             gL.X = -1*obj.testEccentricity;
             gL.contrast = 1;
@@ -81,6 +85,7 @@ classdef csf_base < handle
 
             % Add additional props after duplication to gabor test:
             g.addprop('delay'); 
+            g.addprop('waitFixate');
             % Delay parameter acts as a stimulus input for gabor_test,
             % whereby it specifies how much to delay the gabor trials (i.e.
             % how much time between the adaptation and trial). It is set in
@@ -89,6 +94,16 @@ classdef csf_base < handle
             % fix.on = '@gL_adapt.off + gabor_test.delay';
             % Default to no delay:
             g.delay = 0;
+            g.waitFixate = Inf;
+            
+
+
+            % Add additional props to gL 
+            % waitFixate: How long to wait for fixation, until you just
+            % turn on the adaptation stimulus anyways
+            gL.addprop('waitFixate');
+            gL.waitFixate = Inf; % Default to wait for fixatation, no maximum timeout
+
 
             
             %% Create Behaviours
@@ -118,11 +133,11 @@ classdef csf_base < handle
                 e.useMouse = true;
             end
 
-            fix =marmolab.behaviors.fixate(obj.cic,'gabTrialFixate');
+            fix = behaviors.fixate(obj.cic,'gabTrialFixate');
             fix.verbose         = true;
-            fix.from            = 0; %'@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
+            fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
             fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
-            fix.on              = 0; %'@gL_adapt.off + gabor_test.delay';
+            fix.on              = '@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
             fix.Y               = 0; 
             fix.tolerance       = 5;
@@ -131,23 +146,23 @@ classdef csf_base < handle
 
 %             Sound feedback when fixate results in fail
             if ~ismac
-            plugins.sound(obj.cic); 
-            s= plugins.soundFeedback(obj.cic,'soundFeedback');
-            s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
-            s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-            s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+                plugins.sound(obj.cic); 
+                s= plugins.soundFeedback(obj.cic,'soundFeedback');
+                s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
+                s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
+                s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
             end 
 
-%             adaptFix = fixate_adapt(obj.cic,'adaptFixate');
-%             adaptFix.verbose = true;
-%             adaptFix.on = 0;
-%             adaptFix.from            = '@gL_adapt.on';  
-%             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
-%             adaptFix.X               = 0;
-%             adaptFix.Y               = 0; 
-%             adaptFix.tolerance       = 1;
-%             adaptFix.failEndsTrial  = false; 
-%             adaptFix.required = false;
+            adaptFix = fixate_adapt(obj.cic,'adaptFixate');
+            adaptFix.verbose = true;
+            adaptFix.on = 0;
+            adaptFix.from            = '@gL_adapt.on';  
+            adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
+            adaptFix.X               = 0;
+            adaptFix.Y               = 0; 
+            adaptFix.tolerance       = 1;
+            adaptFix.failEndsTrial  = false; 
+            adaptFix.required = false;
 %         
             
         end
