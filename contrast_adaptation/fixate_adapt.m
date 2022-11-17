@@ -113,6 +113,16 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
         % isn't reset)
         function initialFreeViewing(o, t, e)
             if ~e.isRegular; return; end % No Entry/exit needed.
+             transition(o,@o.initialFreeViewing2,e); % Transition to prevent error
+        end
+
+        function initialFreeViewing2(o, t, e)
+            if ~e.isRegular; return; end % No Entry/exit needed.
+            if (t > o.to) 
+                @o.fail; 
+                %stop(o.player)
+                o.setWhite;
+            end
             if (t > o.on && t < o.to)
                 o.measureDistance(t,e);
                 [inside,isAllowedBlink] = isInWindow(o,e);  
@@ -127,6 +137,8 @@ classdef fixate_adapt  < neurostim.behaviors.eyeMovement
                 end
             end
         end
+
+
         
         % The first fixation will come here, so we can record the startTime
         % In this way, we are not rewriting the startTime with each
