@@ -120,7 +120,7 @@ classdef csf_base < handle
 
             fix =marmolab.behaviors.fixate(obj.cic,'gabTrialFixate');
             fix.verbose         = true;
-            fix.from            = 0; %'@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
+            fix.from            = '@gabor_test.on';  % If fixation has not been achieved at this time, move to the next trial
             fix.to              = '@gabor_test.off';   % Require fixation until the choice is done.
             fix.on              = 0; %'@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
@@ -131,23 +131,23 @@ classdef csf_base < handle
 
 %             Sound feedback when fixate results in fail
             if ~ismac
-            plugins.sound(obj.cic); 
-            s= plugins.soundFeedback(obj.cic,'soundFeedback');
-            s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
-            s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-            s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+                plugins.sound(obj.cic); 
+                s= plugins.soundFeedback(obj.cic,'soundFeedback');
+                s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
+                s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
+                s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
             end 
 
-%             adaptFix = fixate_adapt(obj.cic,'adaptFixate');
-%             adaptFix.verbose = true;
-%             adaptFix.on = 0;
-%             adaptFix.from            = '@gL_adapt.on';  
-%             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
-%             adaptFix.X               = 0;
-%             adaptFix.Y               = 0; 
-%             adaptFix.tolerance       = 1;
-%             adaptFix.failEndsTrial  = false; 
-%             adaptFix.required = false;
+            adaptFix = fixate_adapt(obj.cic,'adaptFixate');
+            adaptFix.verbose = true;
+            adaptFix.on = 0;
+            adaptFix.from            = '@gL_adapt.on';  
+            adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
+            adaptFix.X               = 0;
+            adaptFix.Y               = 0; 
+            adaptFix.tolerance       = 1;
+            adaptFix.failEndsTrial  = false; 
+            adaptFix.required = false;
 %         
             
         end
