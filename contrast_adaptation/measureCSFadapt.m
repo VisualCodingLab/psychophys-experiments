@@ -13,7 +13,7 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 contrastList   = logspace(-2.1, -0.3, 11);
 freqList       = logspace(-0.3, 1.25, 12); 
 nBlocksPerCond = 5;     % conditions: Adapt/no-adapt
-nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
+nRepeatsPerCond = 1;    % conditions: SF/Contrast combos
 
 % == Adaptations for each trial ==
 % Create durations array for adapter
@@ -21,13 +21,13 @@ csf.testDuration = 250;
 csf.testEccentricity = 5; 
 csf.adapterFrequency = 2.5;
 
-csf.cic.initialAdaptation = 20000; % Initial adaptation (ms) - first trial
+csf.cic.initialAdaptation = 60000; % Initial adaptation (ms) - first trial
 csf.cic.initialDelay = 500; % Initial delay from adaptation to trial (ms) - first trial
 csf.cic.seqAdaptation = [0 0 0 0 0 0 0 0 0 5000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 0 0 0 0 0 0 0 250]; % Cyclic sequence of delay from adapt to trial (ms)
 
 csf.cic.gL_adapt.waitFixate = Inf; % Wait for fixation for x ms, until giving up and starting the adaptation
-csf.cic.gabor_test.waitFixate = Inf; % Wait for x ms, until giving up and starting the trial
+csf.cic.gabor_test.waitFixate = 0; % Wait for x ms, until giving up and starting the trial
 
 % Experimental setup
 % Define experimental setup

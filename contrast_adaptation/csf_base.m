@@ -140,7 +140,7 @@ classdef csf_base < handle
             fix.on              = '@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
             fix.Y               = 0; 
-            fix.tolerance       = 5;
+            fix.tolerance       = 1;
             fix.failEndsTrial  = false; 
             fix.required = false; 
 
