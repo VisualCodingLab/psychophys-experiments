@@ -1,8 +1,17 @@
 clear
 
-path = '~/Desktop/stimdev/';
+path = '~/Desktop/Data/';
 % % this is a list of all the files you want to combine
-dFile = {'2022/11/22/QQ.test.124919.mat'};
+dFile =  
+
+% {'QV.test.132208.mat', 'QV.test.141506.mat', 'QV.test.141618.mat', ...
+% 'QV.test.104437.mat'}
+
+% {'RW.test.151006.mat', 'RW.test.165456.mat', 'RW.test.153831.mat', ...
+% 'RW.test.154036.mat', 'RW.test.082126.mat', 'RW.test.155613.mat'};
+
+% {'QQ.test.111124.mat', 'QQ.test.105904.mat', 'QQ.test.121354.mat', ... 
+% 'QQ.test.113827.mat', 'QQ.test.132633.mat', 'QQ.test.103253.mat'}
 
 allResps = [];
 allConts = [];
