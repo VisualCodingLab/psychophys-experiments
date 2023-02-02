@@ -13,17 +13,17 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 % Enter inputs
 contrastList   = 0.8;  % logspace(-2.1, -0.3, 11);
 % freqList       = {2, 10}; 
-phaseList      = {0, pi/4, pi/2};
+phaseList      = {0, 180};
 nBlocksPerCond = 5;     % conditions: Adapt/no-adapt
 nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
 
 % == Adaptations for each trial ==
 % Create durations array for adapter
-csf.testDuration = 250;
+csf.testDuration = 1000;
 csf.testEccentricity = 5; 
 csf.adapterFrequency = 2;
 
-csf.cic.initialAdaptation = 5000; % Initial adaptation (ms) - first trial
+csf.cic.initialAdaptation = 500; % Initial adaptation (ms) - first trial
 csf.cic.initialDelay = 500; % Initial delay from adaptation to trial (ms) - first trial
 csf.cic.seqAdaptation = [0 0 0 0 0 0 0 0 0 5000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 0 0 0 0 0 0 0 250]; % Cyclic sequence of delay from adapt to trial (ms)
@@ -36,7 +36,7 @@ csf.cic.gabor_test.waitFixate = Inf; % Wait for x ms, until giving up and starti
 d{1} = design('Suppress');
 d{1}.fac1.gL_adapt.contrast = 1;
 d{1}.fac2.gabor_test.contrast = contrastList;
-d{1}.fac3.gabor_test.frequency = 2;
+d{1}.fac3.gabor_test.frequency = 0.5;
 d{1}.fac4.gabor_test.phase = phaseList;
 d{1}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
