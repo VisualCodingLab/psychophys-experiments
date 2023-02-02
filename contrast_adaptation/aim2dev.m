@@ -23,13 +23,22 @@ csf.testDuration = 1000;
 csf.testEccentricity = 5; 
 csf.adapterFrequency = 2;
 
-csf.cic.initialAdaptation = 5000; % Initial adaptation (ms) - first trial
+csf.cic.initialAdaptation = 20000; % Initial adaptation (ms) - first trial
 csf.cic.initialDelay = 500; % Initial delay from adaptation to trial (ms) - first trial
 csf.cic.seqAdaptation = [0 0 0 0 0 0 0 0 0 5000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 0 0 0 0 0 0 0 250]; % Cyclic sequence of delay from adapt to trial (ms)
 
 csf.cic.gL_adapt.waitFixate = Inf; % Wait for fixation for x ms, until giving up and starting the adaptation
 csf.cic.gabor_test.waitFixate = Inf; % Wait for x ms, until giving up and starting the trial
+
+% not pretty, but this sets up 0.5cpd gratings that contrast reverse at
+% 2Hz. 
+csf.cic.gL_adapt.flickerMode = 'square';
+csf.cic.gL_adapt.flickerFrequency = 2;
+csf.cic.gL_adapt.frequency = 0.5;
+csf.cic.gR_adapt.flickerMode = 'square';
+csf.cic.gR_adapt.flickerFrequency = 2;
+csf.cic.gR_adapt.frequency = 0.5;
 
 % Experimental setup
 % Define experimental setup
