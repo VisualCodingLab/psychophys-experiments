@@ -1,5 +1,5 @@
 % Written by AS Sept/Oct 2022
-% Edited by IHT for Aim2 Jan 2023
+% Edited by IHT for Aim2 Jan/Feb 2023
 
 clear all;
 
@@ -11,11 +11,10 @@ csf = csf_base;
 csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 % Enter inputs
-contrastList   = 0.8;  % logspace(-2.1, -0.3, 11);
-% freqList       = {2, 10}; 
-phaseList      = {0, 180};
-nBlocksPerCond = 5;     % conditions: Adapt/no-adapt
-nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
+contrastList   = logspace(-2.1, -0.3, 11);
+phaseList      = {0, 15, 30, 60, 90};
+nBlocksPerCond = 5;     % conditions: Suppress/Facilitate
+nRepeatsPerCond = 2;    % conditions: Phase/Contrast combos
 
 % == Adaptations for each trial ==
 % Create durations array for adapter
@@ -35,10 +34,10 @@ csf.cic.gabor_test.waitFixate = Inf; % Wait for x ms, until giving up and starti
 % 2Hz. 
 csf.cic.gL_adapt.flickerMode = 'square';
 csf.cic.gL_adapt.flickerFrequency = 2;
-csf.cic.gL_adapt.frequency = 0.5;
+csf.cic.gL_adapt.frequency = 2;
 csf.cic.gR_adapt.flickerMode = 'square';
 csf.cic.gR_adapt.flickerFrequency = 2;
-csf.cic.gR_adapt.frequency = 0.5;
+csf.cic.gR_adapt.frequency = 2;
 
 % Experimental setup
 % Define experimental setup
@@ -52,7 +51,7 @@ d{1}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixati
 d{2}= design('Facilitate');
 d{2}.fac1.gL_adapt.contrast = 1;
 d{2}.fac2.gabor_test.contrast = contrastList; %csf.genInputs.contrast; 
-d{2}.fac3.gabor_test.frequency = 10; %csf.genInputs.freq;
+d{2}.fac3.gabor_test.frequency = 8; %csf.genInputs.freq;
 d{2}.fac4.gabor_test.phase = phaseList;
 d{2}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
