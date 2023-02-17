@@ -22,7 +22,7 @@ csf.testDuration = 1000;
 csf.testEccentricity = 5; 
 csf.adapterFrequency = 2;
 
-csf.cic.initialAdaptation = 20000; % Initial adaptation (ms) - first trial
+csf.cic.initialAdaptation = 60000; % Initial adaptation (ms) - first trial
 csf.cic.initialDelay = 500; % Initial delay from adaptation to trial (ms) - first trial
 csf.cic.seqAdaptation = [0 0 0 0 0 0 0 0 0 5000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 0 0 0 0 0 0 0 250]; % Cyclic sequence of delay from adapt to trial (ms)
