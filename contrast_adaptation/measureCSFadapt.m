@@ -10,10 +10,10 @@ csf = csf_base;
 csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 % Enter inputs
-contrastList   = logspace(-2.1, -0.3, 11);
-freqList       = logspace(-0.3, 1.25, 12); 
+contrastList   = logspace(-2.1, -0.38, 8);
+freqList       = logspace(-0.2, 0.76, 5); 
 nBlocksPerCond = 5;     % conditions: Adapt/no-adapt
-nRepeatsPerCond = 1;    % conditions: SF/Contrast combos
+nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
 
 % == Adaptations for each trial ==
 % Create durations array for adapter
