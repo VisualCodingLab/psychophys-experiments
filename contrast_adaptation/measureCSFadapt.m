@@ -8,6 +8,7 @@ import neurostim.*
 % Create CIC 
 csf = csf_base;
 csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
+csf.cic.itiClear = 0;
 
 % Enter inputs
 contrastList   = logspace(-2.1, -0.38, 8);
@@ -26,7 +27,7 @@ csf.cic.initialDelay = 500; % Initial delay from adaptation to trial (ms) - firs
 csf.cic.seqAdaptation = [0 0 0 0 0 0 0 0 0 5000]; % Cyclic sequence of adaptations (ms)
 csf.cic.seqDelay = [0 0 0 0 0 0 0 0 0 250]; % Cyclic sequence of delay from adapt to trial (ms)
 
-csf.cic.gL_adapt.waitFixate = Inf; % Wait for fixation for x ms, until giving up and starting the adaptation
+csf.cic.gL_adapt.waitFixate = 500; % Wait for fixation for x ms, until giving up and starting the adaptation
 csf.cic.gabor_test.waitFixate = 0; % Wait for x ms, until giving up and starting the trial
 
 % not pretty, but this sets up 0.5cpd gratings that contrast reverse at
