@@ -11,10 +11,31 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 csf.cic.itiClear = 0;
 
 % Enter inputs
+blockStruct = 'no-adapt'; %'no-adapt', 'AB', 'BA'
 contrastList   = logspace(-2.1, -0.38, 8);
 freqList       = logspace(-0.2, 0.76, 5); 
-nBlocksPerCond = 5;     % conditions: Adapt/no-adapt
 nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
+
+
+switch blockStruct
+    case 'AB'
+        nBlocksPerCond = 5;     % conditions: Adapt/no-adapt
+        designOrder = mod(ceil(0:0.5:nBlocksPerCond),2)+1;
+        nBlocks = nBlocksPerCond*2;
+    case 'BA'
+        nBlocksPerCond = 5;     % conditions: Adapt/no-adapt
+        designOrder = mod(ceil(1:0.5:1+nBlocksPerCond),2)+1;
+        nBlocks = nBlocksPerCond*2;
+    case 'adapt'
+        nBlocksPerCond = 10;
+        designOrder = ones(1, nBlocksPerCond);
+        nBlocks = nBlocksPerCond;
+    case 'no-adapt'
+        nBlocksPerCond = 10;
+        designOrder = ones(1, nBlocksPerCond)+1;
+        nBlocks = nBlocksPerCond;
+end
+
 
 % == Adaptations for each trial ==
 % Create durations array for adapter
@@ -54,9 +75,7 @@ d{2}.fac3.gabor_test.frequency = freqList; %csf.genInputs.freq;
 d{2}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
 % load designs into blocks
-designOrder = mod(ceil(0:0.5:nBlocksPerCond),2)+1; %ABBABB etc.
 
-nBlocks = nBlocksPerCond*2;
 for i=1:nBlocks
     myBlock{i}=block([d{designOrder(i)}.name num2str(i)],d{designOrder(i)});             %Create a block of trials using the factorial. Type "help neurostim/block" for more options.
     myBlock{i}.nrRepeats=nRepeatsPerCond;
