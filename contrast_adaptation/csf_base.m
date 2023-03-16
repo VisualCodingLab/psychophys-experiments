@@ -56,8 +56,8 @@ classdef csf_base < handle
             g.height = 5;
             g.mask ='GAUSS3';
             g.duration = obj.testDuration;
-            g.on = '@min(gabTrialFixate.startTime.fixating, gabTrialFixate.on + gabor_test.waitFixate)'; % Turns on as soon as adapter turns off + delay that can be specified
-            %g.on = '@gabTrialFixate.startTime.fixating';
+            %g.on = '@min(gabTrialFixate.startTime.fixating, gabTrialFixate.on + gabor_test.waitFixate)'; % Turns on as soon as adapter turns off + delay that can be specified
+            g.on = '@gabTrialFixate.startTime.fixating';
             g.X = obj.testEccentricity;
             g.Y = 0;
 
@@ -140,7 +140,7 @@ classdef csf_base < handle
             fix.on              = '@gL_adapt.off + gabor_test.delay';
             fix.X               = 0;
             fix.Y               = 0; 
-            fix.tolerance       = 5;
+            fix.tolerance       = 0.5;
             fix.failEndsTrial  = false; 
             fix.required = false; 
 
@@ -160,7 +160,7 @@ classdef csf_base < handle
             adaptFix.to              = '@gL_adapt.off';   % Require fixation until the choice is done
             adaptFix.X               = 0;
             adaptFix.Y               = 0; 
-            adaptFix.tolerance       = 1;
+            adaptFix.tolerance       = 0.5;
             adaptFix.failEndsTrial  = false; 
             adaptFix.required = false;
 %         
