@@ -8,7 +8,7 @@ import neurostim.*
 % Create CIC 
 csf = csf_base;
 csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
-
+csf.cic.eye.doTrackerSetupEachBlock = true;
 % Enter inputs
 contrastList   = logspace(-2.1, -0.3, 11);
 freqList       = logspace(-0.3, 1.25, 12); 
