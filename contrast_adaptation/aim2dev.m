@@ -13,6 +13,7 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 % Enter inputs
 contrastList   = logspace(-2.1, -0.3, 11);
 phaseList      = {0, 15, 30, 60, 90};
+freqList       = [2 8];
 nBlocksPerCond = 5;     % conditions: Suppress/Facilitate
 nRepeatsPerCond = 2;    % conditions: Phase/Contrast combos
 
@@ -41,22 +42,22 @@ csf.cic.gR_adapt.frequency = 2;
 
 % Experimental setup
 % Define experimental setup
-d{1} = design('Suppress');
+d{1} = design('AdaptTest');
 d{1}.fac1.gL_adapt.contrast = 1;
 d{1}.fac2.gabor_test.contrast = contrastList;
-d{1}.fac3.gabor_test.frequency = 2;
+d{1}.fac3.gabor_test.frequency = freqList;
 d{1}.fac4.gabor_test.phase = phaseList;
 d{1}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
-d{2}= design('Facilitate');
-d{2}.fac1.gL_adapt.contrast = 1;
-d{2}.fac2.gabor_test.contrast = contrastList; %csf.genInputs.contrast; 
-d{2}.fac3.gabor_test.frequency = 8; %csf.genInputs.freq;
-d{2}.fac4.gabor_test.phase = phaseList;
-d{2}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
+% d{2}= design('Facilitate');
+% d{2}.fac1.gL_adapt.contrast = 1;
+% d{2}.fac2.gabor_test.contrast = contrastList; %csf.genInputs.contrast; 
+% d{2}.fac3.gabor_test.frequency = 8; %csf.genInputs.freq;
+% d{2}.fac4.gabor_test.phase = phaseList;
+% d{2}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
 % load designs into blocks
-designOrder = mod(ceil(0:0.5:nBlocksPerCond),2)+1; %ABBABB etc.
+designOrder = ones(1,nBlocks); %ABBABB etc.
 
 nBlocks = nBlocksPerCond*2;
 for i=1:nBlocks
