@@ -11,17 +11,28 @@ csf = csf_base;
 csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 
 % Enter inputs
-contrastList   = logspace(-2.1, -0.3, 11);
+blockStruct    = 'adapt'; 
+contrastList   = logspace(-2.1, -0.4, 8);
 phaseList      = {0, 15, 30, 60, 90};
-freqList       = [2 8];
-nBlocksPerCond = 5;     % conditions: Suppress/Facilitate
-nRepeatsPerCond = 2;    % conditions: Phase/Contrast combos
+freqList       = [1.3 6];
+nRepeatsPerCond = 3;    % conditions: Phase/Contrast combos
+
+switch blockStruct
+    case 'adapt'
+        nBlocksPerCond = 10;
+        designOrder = ones(1, nBlocksPerCond);
+        nBlocks = nBlocksPerCond;
+        csf.cic.eye.doTrackerSetupEachBlock = true;
+    case 'no-adapt'
+        nBlocksPerCond = 10;
+        designOrder = ones(1, nBlocksPerCond)+1;
+        nBlocks = nBlocksPerCond;
+end
 
 % == Adaptations for each trial ==
 % Create durations array for adapter
 csf.testDuration = 1000;
 csf.testEccentricity = 5; 
-csf.adapterFrequency = 2;
 
 csf.cic.initialAdaptation = 60000; % Initial adaptation (ms) - first trial
 csf.cic.initialDelay = 500; % Initial delay from adaptation to trial (ms) - first trial
@@ -34,32 +45,29 @@ csf.cic.gabor_test.waitFixate = Inf; % Wait for x ms, until giving up and starti
 % not pretty, but this sets up 0.5cpd gratings that contrast reverse at
 % 2Hz. 
 csf.cic.gL_adapt.flickerMode = 'square';
-csf.cic.gL_adapt.flickerFrequency = 2;
-csf.cic.gL_adapt.frequency = 2;
+csf.cic.gL_adapt.flickerFrequency = 1.3;
+csf.cic.gL_adapt.frequency = 1.3;
 csf.cic.gR_adapt.flickerMode = 'square';
-csf.cic.gR_adapt.flickerFrequency = 2;
-csf.cic.gR_adapt.frequency = 2;
+csf.cic.gR_adapt.flickerFrequency = 1.3;
+csf.cic.gR_adapt.frequency = 1.3;
 
 % Experimental setup
 % Define experimental setup
-d{1} = design('AdaptTest');
+d{1} = design('Adapt');
 d{1}.fac1.gL_adapt.contrast = 1;
 d{1}.fac2.gabor_test.contrast = contrastList;
 d{1}.fac3.gabor_test.frequency = freqList;
 d{1}.fac4.gabor_test.phase = phaseList;
 d{1}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
-% d{2}= design('Facilitate');
-% d{2}.fac1.gL_adapt.contrast = 1;
-% d{2}.fac2.gabor_test.contrast = contrastList; %csf.genInputs.contrast; 
-% d{2}.fac3.gabor_test.frequency = 8; %csf.genInputs.freq;
-% d{2}.fac4.gabor_test.phase = phaseList;
-% d{2}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
+d{2}= design('No-Adapt');
+d{2}.fac1.gL_adapt.contrast = 0;
+d{2}.fac2.gabor_test.contrast = contrastList; %csf.genInputs.contrast; 
+d{2}.fac3.gabor_test.frequency = freqList; %csf.genInputs.freq;
+d{2}.fac4.gabor_test.phase = phaseList;
+d{2}.retry = 'RANDOM'; % This means retry any trials that fail due to non-fixation in a random position sometime in a future trial
 
 % load designs into blocks
-designOrder = ones(1,nBlocks); %ABBABB etc.
-
-nBlocks = nBlocksPerCond*2;
 for i=1:nBlocks
     myBlock{i}=block([d{designOrder(i)}.name num2str(i)],d{designOrder(i)});             %Create a block of trials using the factorial. Type "help neurostim/block" for more options.
     myBlock{i}.nrRepeats=nRepeatsPerCond;
