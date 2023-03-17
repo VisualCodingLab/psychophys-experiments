@@ -16,11 +16,11 @@ blockStruct    = 'adapt';
 contrastList   = logspace(-2.1, -0.4, 8);
 phaseList      = {0, 15, 30, 60, 90};
 freqList       = [1.3 6];
-nRepeatsPerCond = 3;    % conditions: Phase/Contrast combos
+nRepeatsPerCond = 1;    % conditions: Phase/Contrast combos
 
 switch blockStruct
     case 'adapt'
-        nBlocksPerCond = 10;
+        nBlocksPerCond = 12;
         designOrder = ones(1, nBlocksPerCond);
         nBlocks = nBlocksPerCond;
         csf.cic.eye.doTrackerSetupEachBlock = true;
