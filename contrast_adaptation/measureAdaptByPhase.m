@@ -9,7 +9,7 @@ import neurostim.*
 % Create CIC 
 csf = csf_base;
 csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
-csf.cic.itiClear = 0;
+csf.cic.itiClear = 1;
 
 % Enter inputs
 blockStruct    = 'adapt'; 

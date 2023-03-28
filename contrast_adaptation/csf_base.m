@@ -148,7 +148,7 @@ classdef csf_base < handle
             if ~ismac
                 plugins.sound(obj.cic); 
                 s= plugins.soundFeedback(obj.cic,'soundFeedback');
-                s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
+                %s.add('waveform','bloop4.wav','when','afterTrial','criterion','@ ~gabTrialFixate.isSuccess');
                 s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
                 s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
             end 
