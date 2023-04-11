@@ -11,10 +11,10 @@ csf.cic.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
 csf.cic.itiClear = 0;
 
 % Enter inputs
-blockStruct = 'no-adapt'; %'no-adapt', 'AB', 'BA'
-contrastList   = logspace(-2.1, -0.38, 8);
-freqList       = logspace(-0.2, 0.76, 5); 
-nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
+blockStruct = 'AB'; %'no-adapt', 'AB', 'BA'
+contrastList   = logspace(-2.1, -0.3, 11);
+freqList       = logspace(-0.3, 1.25, 12); 
+nRepeatsPerCond = 1;    % conditions: SF/Contrast combos
 
 
 switch blockStruct
