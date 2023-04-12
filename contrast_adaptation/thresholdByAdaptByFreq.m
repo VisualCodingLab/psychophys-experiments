@@ -21,15 +21,17 @@ allFreqs = [];
 % combine relevant trial-related information across files
 for iFile = 1:length(dFile)
     load([path dFile{iFile}]);
-    allResps = [allResps get(c.choice.prms.correct,'atTrialTime',Inf)'];
+    tmp = get(c.choice.prms.correct,'atTrialTime',Inf)';
+    if iscell(tmp) % convert to array if cell array (this can happen with early-abort)
+        tmp = cellfun(@(x) islogical(x)&&x, tmp);
+    end
+    allResps = [allResps tmp];
     allConts = [allConts get(c.gabor_test.prms.contrast, 'atTrialTime', Inf)'];
     allFreqs = [allFreqs get(c.gabor_test.prms.frequency, 'atTrialTime', Inf)'];
     allAdapt = [allAdapt get(c.gL_adapt.prms.contrast, 'atTrialTime', Inf)'];
 end
+%%
 
-if iscell(allResps) % convert to array if cell array (this can happen with early-abort)
-    allResps = cellfun(@(x) islogical(x)&&x, allResps);
-end
 
 cList = unique(allConts); nCont = length(cList); 
 aList = unique(allAdapt); nAdapt = length(aList); 
