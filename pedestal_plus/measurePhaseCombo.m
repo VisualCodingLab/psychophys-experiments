@@ -3,14 +3,25 @@
 % Prerequisites. 
 import neurostim.*
 
-
-
 %============= Enter inputs =====================
-contrastList   = logspace(-2.1, -0.38, 8);
-freqList       = logspace(-0.2, 0.76, 5); 
+% pedestal properties
+pedestalFrequency = 1;
+
+% test properties
+testPatt = 'gabor'; %gabor | nwave
+contrastList   = logspace(-0.5, 0, 4);          % the contrast of the test pattern
+
+switch testPatt
+    case 'gabor'
+        testFreq = pedestalFrequency/3;
+        testPhases = [0 2.5 5 10 20 45 90];
+    case 'nwave'
+
+end
+
+% experiment properties
 nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
 testEccentricity = 5;
-pedestalFrequency = 1;
 testDuration = 1000;
 nBlocks = 2;
 
@@ -39,11 +50,22 @@ f.Y                 = 0;
 f.on                = 0;                % Always on
 f.duration          = Inf;
 
+% 1/f background noise
+%bg = stimuli.texture(c, 'noise');
+%bg.width = 20;
+%bg.height = 20; 
+
+
+%img = getNoiseIm(); 
+%bg.add(1,img);
+
+
+
 % Test gabor to display left or right
 g=stimuli.gabor(c,'gabor_test'); % Gabor to display during testing (either left or right) 
 g.color = [0.5 0.5 0.5];
 g.sigma = 0.75;
-g.frequency = 1;
+g.frequency = testFreq;
 g.phaseSpeed = 0;
 g.orientation = 90;
 g.width = 5;
@@ -63,7 +85,7 @@ gL = duplicate(g,'gL_pedestal'); % Additional gabor to display for adapting imag
 % Below statement: If duration is 0 (i.e. no adapter), then
 % turn the stimuli on immediately (don't wait for fixation) to
 % prevent double fixation waiting time
-gL.duration = 0; % Default no adapter
+gL.duration = testDuration; % Default no adapter
 gL.X = -1*testEccentricity;
 gL.contrast = 1;
 gL.frequency = pedestalFrequency;
@@ -119,7 +141,20 @@ end
 c.run(myBlock{:});
 
 %% Functions
+
+function img = getNoiseIm
+    img = makeNoisePatt(256, 0, 180, 1.3);
+    img = img + abs(min(img(:))); 
+    img = img/max(abs(img(:)));
+    img = img*255;
+end
+
 function beginTrial(c)
+
+   %generate a new noise pattern
+%   img = getNoiseIm(); 
+%   c.noise.replace(1,img);
+
 
   % Randomise position of gabor_test (left or right)
   randLogical = (rand()<0.5); % 1 or 0
