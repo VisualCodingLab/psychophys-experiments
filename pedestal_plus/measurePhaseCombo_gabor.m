@@ -6,15 +6,16 @@ import neurostim.*
 %============= Enter inputs =====================
 % pedestal properties
 pedestalFrequency = 1;
+pedestalContrast  = 0.5;
 
 % test properties
 testPatt = 'gabor'; %gabor | nwave
-contrastList   = logspace(-0.5, 0, 4);          % the contrast of the test pattern
+contrastList   = [1]; %logspace(-0.5, 0, 4);          % the contrast of the test pattern
 
 switch testPatt
     case 'gabor'
         testFreq = pedestalFrequency/3;
-        testPhases = [0 2.5 5 10 20 45 90];
+        phaseList = [0 2.5 5 10 20 45 90];
     case 'nwave'
 
 end
@@ -22,7 +23,7 @@ end
 % experiment properties
 nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
 testEccentricity = 5;
-testDuration = 1000;
+testDuration = 10000;
 nBlocks = 2;
 
 % Setup CIC and the stimuli.
@@ -62,7 +63,12 @@ f.duration          = Inf;
 
 
 % Test gabor to display left or right
-g=stimuli.gabor(c,'gabor_test'); % Gabor to display during testing (either left or right) 
+switch testPatt
+    case 'gabor'
+        g=stimuli.gabor(c,'gabor_test'); % Gabor to display during testing (either left or right) 
+    case 'nwave'
+        g = squarewaves.nWave(c,'nWave');
+end
 g.color = [0.5 0.5 0.5];
 g.sigma = 0.75;
 g.frequency = testFreq;
@@ -74,7 +80,7 @@ g.mask ='GAUSS3';
 g.duration = testDuration;
 g.on = 0;
 g.X = testEccentricity;
-g.Y = 0;
+g.Y = 2;
 
 % Pedestal gabors
 % Any changes should be only made to gL (as gR copies from gL)
@@ -85,9 +91,11 @@ gL = duplicate(g,'gL_pedestal'); % Additional gabor to display for adapting imag
 % Below statement: If duration is 0 (i.e. no adapter), then
 % turn the stimuli on immediately (don't wait for fixation) to
 % prevent double fixation waiting time
+gL.color = [0.5 0.5 0.5];
 gL.duration = testDuration; % Default no adapter
 gL.X = -1*testEccentricity;
-gL.contrast = 1;
+gL.Y = 0;
+gL.contrast = pedestalContrast;
 gL.frequency = pedestalFrequency;
 
 gR = duplicate(gL, 'gR_pedestal'); % Right adapter (duplicates gL)
@@ -124,9 +132,8 @@ end
 % Experimental setup
 % Define experimental setup
 d{1}= design('Pedestal-Test');
-d{1}.fac1.gL_pedestal.contrast = 0;
-d{1}.fac2.gabor_test.contrast = contrastList; 
-d{1}.fac3.gabor_test.frequency = freqList; 
+d{1}.fac1.gabor_test.contrast = contrastList; 
+d{1}.fac2.gabor_test.phase = phaseList;
 
 % load designs into blocks
 
