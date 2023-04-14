@@ -15,7 +15,7 @@ pedestalContrast  = 0.5;
 % test properties
 testFrequency = pedestalFrequency;
 contrastList   = logspace(-0.5, 0, 4);          % the contrast of the test pattern
-phaseList = [0 180]; %[0 2.5 5 10 20 45 90 180];          % width of phase randomness
+phaseList = [0 2.5 5 10 20 45 90 180];          % width of phase randomness
 
 % experiment properties
 nRepeatsPerCond = 2;    % conditions: phase/Contrast combos
@@ -76,8 +76,8 @@ g.mask ='GAUSS3';
 g.duration = testDuration;
 g.on = 0;
 g.type = 'PSSquare';
-g.harmonics = 3:2:20; % the pedestal is the fundamental
-g.multiGaborsN = 2; % how many harmonics to draw?
+g.harmonics = 1:2:20; % the pedestal is the fundamental
+g.multiGaborsN = 5; % how many harmonics to draw?
 g.X = testEccentricity;
 g.Y = 2;
 
