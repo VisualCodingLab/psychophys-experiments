@@ -74,8 +74,10 @@ classdef nWave < neurostim.stimulus
             o.addProperty('type', 'SineWave', 'validate', @ischar);
             o.addProperty('taperSize',0.5, 'validate', @isnumeric); 
             o.addProperty('harmonics', 1:2:20);
+            
             %% Motion
             o.addProperty('phaseSpeed',0);
+            o.addProperty('spd', 0);
             
             %% Flicker 
             o.addProperty('flickerMode','NONE','validate',@(x)(ismember(neurostim.stimuli.gabor.flickerTypes,upper(x))));            
@@ -83,6 +85,7 @@ classdef nWave < neurostim.stimulus
             o.addProperty('flickerPhaseOffset',0,'validate',@isnumeric);
             
             
+            o.addProperty('phaseWindow', 180, 'validate', @isnumeric);
             o.addProperty('multiGaborsN',1,'validate',@isnumeric);
             o.addProperty('multiGaborsPhaseOffset',zeros(1,10)); % Used internally to randomize phase for the ori mask
             o.addProperty('multiGaborsPhaseStep', zeros(1,10)); 
@@ -115,13 +118,11 @@ classdef nWave < neurostim.stimulus
                     o.multiGaborsN = 1;
                     o.multiGaborsPhaseOffset = 0;
                 case 'Square'
-                    o.multiGaborsN = 8;
                     o.multiGaborsPhaseOffset = ...
                         zeros(1,o.multiGaborsN);
                 case 'PSSquare'
-                    o.multiGaborsN = 8;
                     o.multiGaborsPhaseOffset = ...
-                        360*rand(1,o.multiGaborsN);
+                        (o.phaseWindow*2)*rand(1,o.multiGaborsN)-o.phaseWindow;
                 otherwise
                     warning('Unknown Type - using Sine Wave');
                     o.multiGaborsN = 1;
@@ -159,7 +160,7 @@ classdef nWave < neurostim.stimulus
             specialFlags = kPsychDontDoRotation; % Keep defaults
                                             
             % Draw the Gabor using the GLSL shader
-            aux = [+o.spatialPhase, +o.frequency, +o.contrast, deg2rad(+o.orientation)]';    
+            aux = [+o.spatialPhase, +o.frequency, +o.contrast, deg2rad(90-+o.orientation)]';    
             Screen('DrawTexture', o.window, o.texture, sourceRect, ...
                    o.textureRect, +o.orientation, filterMode, globalAlpha, ...
                    +o.color , textureShader,specialFlags, aux);   
