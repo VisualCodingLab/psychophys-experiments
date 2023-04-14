@@ -1,0 +1,53 @@
+/*
+ * File: BasicGaborShader.frag.txt
+ * Shader for drawing of xyL Gabor patches.
+ * Adapted from PTB.
+ * All variables are in radians
+ * the m-code is in degrees.
+ * BK  April 2014
+ */
+
+varying float contrast;
+varying float phaseCount;
+varying float frequency;
+varying float orientation;
+varying vec4  color;
+
+uniform float multiGaborsPhaseOffset[10];
+uniform float multiGaborsPhaseStep[10];
+uniform float multiGaborsFreqOffset[10];
+uniform float multiGaborsContrastOffset[10];
+uniform int multiGaborsN;
+
+
+void main()
+{
+    /* Query current output texel position wrt. to Center of Gabor: */
+    vec2 pos;
+    vec2 coeff;
+    float sv;
+
+
+    pos = gl_TexCoord[0].xy;
+    sv =0.0;
+
+    /* Compute (x,y) distance weighting coefficients, based on rotation angle: */
+    /* Note that this is a constant for all fragments, but we can not do it in */
+    /* the vertex shader, because the vertex shader does not have sufficient   */
+    /* numeric precision on some common hardware out there. */
+   
+    /* Evaluate sine grating at requested position, angle and phase: */
+    for (int i=0;i<multiGaborsN;i++){
+        coeff = vec2(cos(orientation), sin(orientation)) * (frequency*multiGaborsFreqOffset[i]);        
+        sv = sv + (sin(dot(coeff, pos) + multiGaborsPhaseStep[i]*phaseCount + multiGaborsPhaseOffset[i])*multiGaborsContrastOffset[i]);
+    }
+
+    float factor = 1.0 + sv;
+
+    /*gl_FragColor = color * factor;*/
+    gl_FragColor[0] = color[0] * factor;
+    gl_FragColor[1] = color[1] * factor;
+    gl_FragColor[2] = color[2] * factor;
+    gl_FragColor[3] = color[3];
+
+}
