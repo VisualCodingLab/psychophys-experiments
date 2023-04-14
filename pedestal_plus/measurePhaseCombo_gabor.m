@@ -4,32 +4,30 @@
 import neurostim.*
 
 %============= Enter inputs =====================
+
+% background properties
+hasBackground = 1;
+
 % pedestal properties
 pedestalFrequency = 1;
 pedestalContrast  = 0.5;
 
 % test properties
-testPatt = 'gabor'; %gabor | nwave
-contrastList   = [1]; %logspace(-0.5, 0, 4);          % the contrast of the test pattern
-
-switch testPatt
-    case 'gabor'
-        testFreq = pedestalFrequency/3;
-        phaseList = [0 2.5 5 10 20 45 90];
-    case 'nwave'
-
-end
+testFreq = pedestalFrequency*3;
+contrastList   = logspace(-0.5, 0, 4);          % the contrast of the test pattern
+phaseList = [0 2.5 5 10 20 45 90 180];
 
 % experiment properties
-nRepeatsPerCond = 2;    % conditions: SF/Contrast combos
+nRepeatsPerCond = 2;    % conditions: phase/Contrast combos
 testEccentricity = 5;
-testDuration = 10000;
+testDuration = 1000;
 nBlocks = 2;
 
 % Setup CIC and the stimuli.
 c =  marmolab.rigcfg;   
 
-c.addScript('BeforeTrial',@beginTrial); % Script that varies adapter
+
+c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
 c.itiClear = 0;
 c.trialDuration = Inf; % A trial can only be ended by a mouse click
 c.cursor = 'none'; % hide? 
@@ -52,23 +50,24 @@ f.on                = 0;                % Always on
 f.duration          = Inf;
 
 % 1/f background noise
-%bg = stimuli.texture(c, 'noise');
-%bg.width = 20;
-%bg.height = 20; 
+bgL = lightweightTexture(c, 'noise_L');
+bgL.width = 7;
+bgL.height = 7; 
+bgL.X = -1*testEccentricity;
+if hasBackground
+    bgL.on = 0;
+else
+    bgL.on = Inf;
+end
 
-
-%img = getNoiseIm(); 
-%bg.add(1,img);
+bgR = duplicate(bgL, 'noise_R');
+bgR.X = testEccentricity;
 
 
 
 % Test gabor to display left or right
-switch testPatt
-    case 'gabor'
-        g=stimuli.gabor(c,'gabor_test'); % Gabor to display during testing (either left or right) 
-    case 'nwave'
-        g = squarewaves.nWave(c,'nWave');
-end
+
+g=stimuli.gabor(c,'gabor_test'); % Gabor to display during testing (either left or right) 
 g.color = [0.5 0.5 0.5];
 g.sigma = 0.75;
 g.frequency = testFreq;
@@ -91,11 +90,11 @@ gL = duplicate(g,'gL_pedestal'); % Additional gabor to display for adapting imag
 % Below statement: If duration is 0 (i.e. no adapter), then
 % turn the stimuli on immediately (don't wait for fixation) to
 % prevent double fixation waiting time
-gL.color = [0.5 0.5 0.5];
+gL.color = [0.5 0.5 0.5 pedestalContrast];
 gL.duration = testDuration; % Default no adapter
 gL.X = -1*testEccentricity;
 gL.Y = 0;
-gL.contrast = pedestalContrast;
+gL.contrast = 1;
 gL.frequency = pedestalFrequency;
 
 gR = duplicate(gL, 'gR_pedestal'); % Right adapter (duplicates gL)
@@ -149,19 +148,20 @@ c.run(myBlock{:});
 
 %% Functions
 
-function img = getNoiseIm
-    img = makeNoisePatt(256, 0, 180, 1.3);
+function img = getNoiseIm(sz)
+    img = makeNoisePatt(sz, 0, 180, 1.4);
     img = img + abs(min(img(:))); 
     img = img/max(abs(img(:)));
     img = img*255;
 end
 
 function beginTrial(c)
-
-   %generate a new noise pattern
-%   img = getNoiseIm(); 
-%   c.noise.replace(1,img);
-
+    
+    if c.noise_L.on < Inf
+        img = getNoiseIm(256); 
+        c.noise_L.add(img, 1); 
+        c.noise_R.add(img, 1); 
+    end
 
   % Randomise position of gabor_test (left or right)
   randLogical = (rand()<0.5); % 1 or 0
