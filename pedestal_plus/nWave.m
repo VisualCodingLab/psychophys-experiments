@@ -188,7 +188,7 @@ classdef nWave < neurostim.stimulus
            mSize = RectSize(o.maskRect); 
            ppd = o.cic.physical2Pixel(1.0,0.0)-o.cic.physical2Pixel(0.0,0.0); 
            mask = uint8(ones(mSize, mSize, 2) * 128);
-           winImage = squarewaves.createCosineWindow(mSize, o.taperSize*ppd, 0);
+           winImage = createCosineWindow(mSize, o.taperSize*ppd, 0);
            mask(:,:,2) = abs(1-winImage) * 255;
            o.mask   = Screen('MakeTexture', o.window, mask, [], [], 0); 
 %            o.maskRect = CenterRectOnPoint(maskRect,...

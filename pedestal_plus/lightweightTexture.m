@@ -58,7 +58,7 @@ classdef lightweightTexture < neurostim.stimulus
       o.addProperty('yoffset',0.0,'validate',@isnumeric);
       
       o.addProperty('filterMode',1,'validate',@isnumeric); % 1 -bilinear interpolation
-      o.addProperty('globalAlpha',1,'validate',@isnumeric); % 1 fully opaque
+      o.addProperty('globalAlpha',[],'validate',@isnumeric); % 1 fully opaque
     end
     
 
@@ -83,9 +83,11 @@ classdef lightweightTexture < neurostim.stimulus
       if useMask
           if isempty(o.imgMask)
               sz = size(img, 1);
-              o.imgMask = o.mkwin(sz,0.5);
+              o.imgMask = createCosineWindow(sz, 25, 0);
           end
-          img = cat(3, img, img, img, o.imgMask);
+          img = cat(3, img, img, img, 255*0.3*o.imgMask);
+      else
+          img = cat(3, img, img, img, 0.3*255*ones(size(img)));
       end
       
       o.texImg = img;
@@ -109,8 +111,7 @@ classdef lightweightTexture < neurostim.stimulus
       
       rect = [-o.width -o.height o.width o.height]./2;
       % draw the texture
-      
-      Screen('DrawTextures',o.window,o.ptr,[],rect,[],o.filterMode,o.globalAlpha);
+      Screen('DrawTextures',o.window,o.ptr,[],rect,[],o.filterMode);
     end    
   end % public methods
 

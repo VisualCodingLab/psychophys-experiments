@@ -10,7 +10,7 @@ hasBackground = 1;
 
 % pedestal properties
 pedestalFrequency = 0.5;
-pedestalContrast  = 0.5;
+pedestalContrast  = 0;
 
 % test properties
 testFrequency = pedestalFrequency;
@@ -26,12 +26,11 @@ nBlocks = 2;
 % Setup CIC and the stimuli.
 c =  marmolab.rigcfg;   
 
-
 c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
 c.itiClear = 0;
 c.trialDuration = Inf; % A trial can only be ended by a mouse click
 c.cursor = 'none'; % hide? 
-c.screen.color.background = 0.5*ones(1,3);
+c.screen.color.background = 0*ones(1,3);
 
             
 %===== Create Stimuli
@@ -72,24 +71,17 @@ g.phaseSpeed = 0;
 g.orientation = 90;
 g.width = 6;
 g.height = 6;
-g.mask ='GAUSS3';
 g.duration = testDuration;
 g.on = 0;
 g.type = 'PSSquare';
-g.harmonics = 1:2:20; % the pedestal is the fundamental
+g.harmonics = 3:2:20; % the pedestal is the fundamental
 g.multiGaborsN = 5; % how many harmonics to draw?
 g.X = testEccentricity;
 g.Y = 2;
 
 % Pedestal gabors
 % Any changes should be only made to gL (as gR copies from gL)
-% Realisatically, the only changes made should be to frequency,
-% contrast (although should be 1) and duration (vector of
-% durations)
 gL = stimuli.gabor(c,'gL_pedestal'); % Additional gabor to display for adapting image (left acts as master)
-% Below statement: If duration is 0 (i.e. no adapter), then
-% turn the stimuli on immediately (don't wait for fixation) to
-% prevent double fixation waiting time
 gL.sigma = 0.75;
 gL.orientation = g.orientation; 
 gL.phaseSpeed = g.phaseSpeed;
@@ -155,19 +147,26 @@ c.run(myBlock{:});
 
 %% Functions
 
-function img = getNoiseIm(sz)
-    img = makeNoisePatt(sz, 0, 180, 1.4);
-    img = img + abs(min(img(:))); 
-    img = img/max(abs(img(:)));
-    img = img*255;
+function img = getNoiseIm(sz, rg)
+    img = makeNoisePatt(sz, 0, 180, 1.5);
+    if rg == 2
+        % -1-1
+        img = img-mean(img(:)); 
+        img = img/max(abs(img(:)));
+    elseif rg == 255
+    % 0-255
+    %     img = img + abs(min(img(:))); 
+    %     img = img/max(abs(img(:)));
+    %     img = img*255;
+    end
 end
 
 function beginTrial(c)
     
     if c.noise_L.on < Inf
-        img = getNoiseIm(256); 
-        c.noise_L.add(img, 1); 
-        c.noise_R.add(img, 1); 
+        img = getNoiseIm(256, 2); 
+        c.noise_L.add(img, 0); 
+        c.noise_R.add(img, 0); 
     end
 
   % Randomise position of edgelet_test (left or right)
