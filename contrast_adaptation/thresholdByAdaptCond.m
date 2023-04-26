@@ -2,10 +2,9 @@ clear
 
 path = '~/Desktop/stimdev/';
 % % this is a list of all the files you want to combine
-dFile = {'2022/11/21/0.test.203439.mat'};
+dFile = {'2022/11/22/QQ.test.124919.mat'};
 
 allResps = [];
-allFreqs = [];
 allConts = [];
 allAdapt = [];
 
@@ -15,6 +14,10 @@ for iFile = 1:length(dFile)
     allResps = [allResps get(c.choice.prms.correct,'atTrialTime',Inf)'];
     allConts = [allConts get(c.gabor_test.prms.contrast, 'atTrialTime', Inf)'];
     allAdapt = [allAdapt get(c.gL_adapt.prms.contrast, 'atTrialTime', Inf)'];
+end
+
+if iscell(allResps) % convert to array
+    allResps = cellfun(@(x) islogical(x)&&x, allResps);
 end
 
 cList = unique(allConts); nCont = length(cList); 
@@ -32,12 +35,18 @@ for iAdapt = 1:nAdapt
     for iCont = 1:nCont
         theseTrials = allAdapt == aList(iAdapt) & ...
                       allConts == cList(iCont); 
-        trialInds = find(theseTrials == 1);
-        nTrials{iAdapt}(iCont) = length(trialInds); 
-        perCorr{iAdapt}(iCont) = sum(allResps(trialInds));
+        if sum(theseTrials) > 0
+            trialInds = find(theseTrials == 1);
+            nTrials{iAdapt}(iCont) = length(trialInds); 
+            perCorr{iAdapt}(iCont) = sum(allResps(trialInds));
+        end
     end
     
+    
+    
     data = [log(cList') perCorr{iAdapt}' nTrials{iAdapt}']; % note that the contrast list is log transformed
+    data = data(logical(nTrials{iAdapt}), :); % remove values with no trials 
+    
     result = psignifit(data,options);
     subplot(1,2, iAdapt);
     plotPsych(result);
