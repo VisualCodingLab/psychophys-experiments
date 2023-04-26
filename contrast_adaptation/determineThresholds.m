@@ -72,7 +72,7 @@ for iSub = 1:length(subList)
 
         % put thresholds and confidence intervals in a table for further
         % analysis
-        thresholds(iFreq,:) = {fList(iFreq),thresh, ciu, cil};
+        thresholds(iFreq,:) = {fList(iFreq),1/thresh, 1/ciu, 1/cil};
         threshList(iFreq, iSub) = thresh; 
 
 
@@ -80,5 +80,5 @@ for iSub = 1:length(subList)
                     fList(iFreq), thresh, ciu, cil);
        title(txt);        
     end
-    pause(); 
+
 end
