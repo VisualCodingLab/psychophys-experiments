@@ -30,7 +30,7 @@ c =  marmolab.rigcfg;
 c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
 c.itiClear = 1;
 c.iti= 250;
-c.saveEveryN = length(contrastList)*length(phaseList)*nRepeatsPerCond; % only save between blocks
+%c.saveEveryN = length(contrastList)*length(phaseList)*nRepeatsPerCond; % only save between blocks
 c.trialDuration = Inf; % A trial can only be ended by a mouse click
 c.cursor = 'none'; % hide? 
 c.screen.color.background = 0.5*ones(1,3);
@@ -96,6 +96,8 @@ gR.X = testEccentricity;
 
 % 1/f background noise
 bgL = lightweightTexture(c, 'noise_L');
+stopLog(c.noise_L.prms.imgMask);
+stopLog(c.noise_L.prms.texImg);
 bgL.width = 7;
 bgL.height = 7; 
 bgL.X = -1*testEccentricity;
@@ -106,6 +108,8 @@ else
 end
 
 bgR = duplicate(bgL, 'noise_R');
+stopLog(c.noise_R.prms.imgMask);
+stopLog(c.noise_R.prms.texImg);
 bgR.X = testEccentricity;
             
 %===== Create Behaviours
