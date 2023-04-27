@@ -1,4 +1,6 @@
 
 *.m~
-
+contrast_adaptation/data/
 .DS_Store
+*.asv
+
