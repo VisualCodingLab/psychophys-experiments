@@ -2,7 +2,7 @@
 %% Specify and load the data
 clear all; clc
 
-test = 'contrastsBg'; %contrastsBg | contrasts | nTrials
+test = 'nTrials'; %contrastsBg | contrasts | nTrials
 
 
 path = '~/Desktop/Data/Aim3 Prelim/';
@@ -21,7 +21,14 @@ end
 
 switch test
     case 'nTrials'
-           error('not implemented!');
+        
+        for iCont = 1:n.Cont
+            theseTrials = allTrials.Conts == params.Cont(iCont); 
+            if sum(theseTrials) > 0
+                trialInds = find(theseTrials == 1);
+                rByC{iCont} = allTrials.Resps(trialInds);
+            end
+        end
     case {'contrasts', 'contrastsBg'}
         for iPhase = 1:n.Phase
             nTrials{iPhase} = zeros(1, n.Cont); 
@@ -42,18 +49,50 @@ end
 
 %% Analyse data 
 
-figure(1); clf;
+figure(1); clf; figure(2); clf;
 PF = @PAL_Weibull;         
-paramsValues = [0.05 3 0.5 0.02]; % entries 3+4 are guess/lapse rate 
-B = 100; % should really be 1000 or more. Using 100 cause it's faster.
+paramsValues = [0.05 3 0.5 0.01]; % entries 3+4 are guess/lapse rate 
 
 %for testing necessary contrast range
-lowStart = 2; %this indexes the lowest contrast
-highEnd = 1;  %this is the number of contrasts in from the highest
-
+lowStart = 3; %this indexes the lowest contrast
+highEnd = 2;  %this is the number of contrasts in from the highest
 switch test 
     case 'nTrials'
-        error('not implemented!');
+        StimLevels = params.Cont(lowStart:end-highEnd); 
+        fprintf('%i Contrast levels\n', length(StimLevels));
+        countList = 10:2:300;
+        plotList = 30:90:360;
+        threshList = nan(1, length(countList));
+        ind = 1;
+        for iCount = 1:length(countList)
+            nTrials    = countList(iCount); 
+            OutOfNum   = nTrials*ones(size(StimLevels));    %number of trials
+            NumPos     = cellfun(@(x) sum(x(50:50+nTrials) == 1), rByC);    %number correct
+            %NumPos     = cellfun(@(x) sum(x(randsample(1:360, nTrials)) == 1), rByC);    %number correct
+            NumPos     = NumPos(lowStart:end-highEnd); 
+            
+            [paramsFit, LL, scenario, output] = PAL_PFML_Fit(StimLevels, ...
+                NumPos, OutOfNum, paramsValues, [1 1 0 0], PF);
+            threshList(iCount) = paramsFit(1); 
+            StimLevelsFine = linspace(StimLevels(1),StimLevels(end),100);
+            if ismember(countList(iCount), plotList)
+                figure(1);
+                subplot(1, length(plotList), ind)
+                ind = ind+1;
+                semilogx(StimLevels', NumPos'./OutOfNum','-o')
+                hold on
+                semilogx(StimLevelsFine, PF(paramsFit, StimLevelsFine),'k')
+                tString = sprintf('nTrials=%i, Thresh=%1.3f',nTrials,paramsFit(1));
+                title(tString);
+                   ylabel('Prop. Correct'); 
+                   xlabel('Contrast');
+            end
+        
+        end
+        figure(2); plot(countList,threshList, '-o'); hold on;
+        plot([0  360], mean(threshList)*ones(1,2), '--k');
+        legend;
+        
     case {'contrasts', 'contrastsBg'}
     	StimLevels = params.Cont(lowStart:end-highEnd);                 %contrasts/levels
         
