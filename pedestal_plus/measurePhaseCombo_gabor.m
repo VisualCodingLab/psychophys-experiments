@@ -6,7 +6,7 @@ import neurostim.*
 %============= Enter inputs =====================
 
 % background properties
-hasBackground = 1;
+hasBackground = 0;
 
 % pedestal properties
 pedestalFrequency = 1;
@@ -14,18 +14,18 @@ pedestalContrast  = 0.2; %0.25; %0.3; %0.3;
 
 % test properties
 testFreq = pedestalFrequency*3;
-contrastList  = logspace(-2.1, -0.4, 8);          % the contrast of the test pattern
-phaseList = [0 2.5 5 10 20 45 90 180];
+contrastList  = logspace(-2, -0.5, 8);          % the contrast of the test pattern
+phaseList = [0 7.5 15 30 60 90 180];
 
 % experiment properties
-nRepeatsPerCond = 2;    % conditions: phase/Contrast combos
+nRepeatsPerCond = 7;    % conditions: phase/Contrast combos
 testEccentricity = 5;
-testDuration = 1000;
-nBlocks = 2;
+testDuration = 500;
+nBlocks = 3;
 
 % Setup CIC and the stimuli.
 c =  marmolab.rigcfg;   
-
+c.paradigm='PhaseComboGabor';
 
 c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
 c.itiClear = 1;
