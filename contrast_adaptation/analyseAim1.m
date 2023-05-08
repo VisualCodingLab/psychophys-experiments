@@ -9,7 +9,7 @@ switch analyse
         switch subject 
             case 'RW'
                 dFile = {'RW.test.151006.mat', 'RW.test.165456.mat', 'RW.test.153831.mat',... 
-                     'RW.test.154036.mat', 'RW.test.082126.mat', 'RW.test.155613.mat'};
+                         'RW.test.154036.mat', 'RW.test.082126.mat', 'RW.test.155613.mat'};
             case 'QQ'
                 dFile = {'QQ.test.111124.mat', 'QQ.test.105904.mat', 'QQ.test.121354.mat',...
                         'QQ.test.113827.mat', 'QQ.test.132633.mat', 'QQ.test.103253.mat'};
@@ -27,9 +27,11 @@ switch analyse
                 dFile = {'OY.test.093927.mat', 'OY.test.121812.mat', 'OY.test.124203.mat',... 
                          'OY.test.141628.mat', 'OY.test.143447.mat'}; 
             case 'QV'
-                dFile = {'QV.test.110012.mat', 'QV.test.113624.mat', 'QV.test.091652.mat'};
+                dFile = {'QV.test.110012.mat', 'QV.test.113624.mat', 'QV.test.091652.mat'...
+                         'QV.test.120514.mat', 'QV.test.093946.mat', 'QV.test.124757.mat'};
             case 'QQ'
-                dFile = {'QQ.test.120206.mat', 'QQ.test.131240.mat'};
+                dFile = {'QQ.test.120206.mat', 'QQ.test.131240.mat', 'QQ.test.124719.mat'...
+                         'QQ.test.125555.mat', 'QQ.test.94336.mat'};
         end
 end
 
@@ -59,7 +61,7 @@ end
 %% Fit the psychometric functions
 PF = @PAL_Weibull;         
 paramsValues = [0.01 3 0.5 0.02]; % entries 3+4 are guess/lapse rate 
-B = 100; % should really be 1000 or more. Using 100 cause it's faster.
+B = 1000; % should really be 1000 or more. Using 100 cause it's faster.
 
 
 figure(1); clf;
@@ -86,7 +88,7 @@ for iFreq = 1:n.Freq
     for a = 1:2
         pModelF(a,:) = PF(paramsF(a,:),StimLevelsFine);
         if ~isempty(pTLR)
-            thresholds{a}(iFreq,:) = {params.Freq(iFreq),paramsF(a,1), SD(a,1), pTLR};
+            thresholds{a}(iFreq,:) = {params.Freq(iFreq), 1/paramsF(a,1), SD(a,1), pTLR};
         end
     end
 
