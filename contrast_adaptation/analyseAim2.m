@@ -1,7 +1,7 @@
 %% Specify and load the data
 clear all; clc
 
-subject = 'QV'; 
+subject = 'QQ'; 
 
 
 path = '~/Desktop/Data/Aim 2/';
@@ -13,7 +13,13 @@ switch subject
                  'QV.test.143447.mat', ...
                  'QV.test.144834.mat'};
     case 'QQ'
-        error('No Data Yet!');
+        dFile = {'QQ.test.115445.mat', ...
+                 'QQ.test.103116.mat', ...
+                 'QQ.test.111849.mat', ...
+                 'QQ.test.111439.mat', ...
+                 'QQ.test.102818.mat'};
+             
+
 end
 
 [allTrials, params, n] = loadResults(path, dFile);
@@ -50,7 +56,7 @@ end % end adapt loop
 %% Perform fits
 PF = @PAL_Weibull;         
 paramsValues = [0.01 3 0.5 0.02]; % entries 3+4 are guess/lapse rate 
-B = 100; % should really be 1000 or more. Using 100 cause it's faster.
+B = 1000; % should really be 1000 or more. Using 100 cause it's faster.
 
 figure(1); clf;
 
@@ -80,7 +86,7 @@ for iPhase = 1:n.Phase
     for a = 1:2
         pModelF(a,:) = PF(paramsF(a,:),StimLevelsFine);
 
-        thresholds{a}(ind,:) = {params.Freq(iFreq),params.Phase(iPhase), paramsF(a,1), SD(a,1), pTLR};
+        thresholds{a}(ind,:) = {params.Freq(iFreq),params.Phase(iPhase), 1/paramsF(a,1), SD(a,1), pTLR};
     end
 
     subplot(n.Freq, n.Phase, ind)
