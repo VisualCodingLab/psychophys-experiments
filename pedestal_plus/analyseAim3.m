@@ -1,7 +1,7 @@
 %% Specify and load the data
 clear all; clc
 
-subject = 'QV'; %contrastsBg | contrasts | nTrials
+subject = 'EK'; %contrastsBg | contrasts | nTrials
 background = 'off'; 
 
 path = '~/Desktop/Data/Aim 3/';
@@ -10,19 +10,39 @@ switch subject
     case 'QV'
         switch background 
             case 'off'
-                dFile = {'QV.PhaseComboGabor.102804.mat','QV.PhaseComboGabor.153458.mat' };
+                dFile = {'QV.PhaseComboGabor.153458.mat','QV.PhaseComboGabor.160555.mat',...
+                         'QV.PhaseComboGabor.095508.mat' };
             case 'on'
-                error('no files');
+                dFile = {'QV.PhaseComboGabor.092847.mat','QV.PhaseComboGabor.094554.mat',...
+                         'QV.PhaseComboGabor.102356.mat'};
         end
     case 'QQ'
         switch background 
             case 'off'
-                error('no files');
+                dFile = {'QQ.PhaseComboGabor.094629.mat','QQ.PhaseComboGabor.113435.mat',...
+                         'QQ.PhaseComboGabor.120804.mat' };
             case 'on'
-                error('no files');
+                dFile = {'QQ.PhaseComboGabor.121551.mat','QQ.PhaseComboGabor.124306.mat',...
+                         'QQ.PhaseComboGabor.131643.mat'};
         end
-    otherwise 
-        error('Unknown subject');
+    case 'OY'
+        switch background 
+            case 'off'
+                dFile = {'OY.PhaseComboGabor.131512.mat','OY.PhaseComboGabor.135004.mat',...
+                         'OY.PhaseComboGabor.083535.mat' };
+            case 'on'
+                dFile = {'OY.PhaseComboGabor.090921.mat','OY.PhaseComboGabor.102235.mat',...
+                         'OY.PhaseComboGabor.105723.mat'};
+        end
+    case 'EK'
+        switch background 
+            case 'off'
+                dFile = {'EK.PhaseComboGabor.101926.mat','EK.PhaseComboGabor.105557.mat',...
+                         'EK.PhaseComboGabor.111316.mat' };
+            case 'on'
+                dFile = {'EK.PhaseComboGabor.113645.mat','EK.PhaseComboGabor.112324.mat',...
+                         'EK.PhaseComboGabor.114737.mat'};
+        end
 end
 
 [allTrials, params, n] = loadResults(path, dFile);
@@ -49,7 +69,7 @@ end
 figure(1); clf; figure(2); clf;
 PF = @PAL_Weibull;         
 paramsValues = [0.05 3 0.5 0.01]; % entries 3+4 are guess/lapse rate 
-B = 100;
+B = 1000;
 StimLevels = [params.Cont; params.Cont];              %contrasts/levels
 thresholds = table('Size', [n.Phase 4], ...
                    'VariableNames', ['Phase', "Thresh", "SE", "p-val"], ...
@@ -79,7 +99,7 @@ for iPhase = 1:n.Phase
         pModelF(a,:) = PF(paramsF(a,:),StimLevelsFine);
     end
     
-    thresholds(iPhase,:) = {params.Phase(iPhase), paramsF(2,1), SD(2,1), pTLR};
+    thresholds(iPhase,:) = {params.Phase(iPhase), 1/paramsF(2,1), SD(2,1), pTLR};
     
 
     subplot(1, n.Phase, iPhase)
