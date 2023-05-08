@@ -85,8 +85,8 @@ for iPhase = 1:n.Phase
     % can vary between the two conditions, so we have Thresh1 + Thresh2 + Slope
     [TLR, pTLR, paramsL, paramsF, TLRSim, converged] = ...
         PAL_PFLR_ModelComparison(StimLevels, NumPos, OutOfNum, ...
-        paramsValues, B, PF,'fullerSlopes','constrained', ...
-        'lesserLapserates', 'unconstrained'); 
+        paramsValues, B, PF, 'fullerSlopes','unconstrained', ...
+        'lesserLapserates', 'fixed'); 
     
     [SD, paramsSim, LLSim, converged] = ...
         PAL_PFML_BootstrapNonParametricMultiple(StimLevels, NumPos, ...
@@ -99,15 +99,21 @@ for iPhase = 1:n.Phase
         pModelF(a,:) = PF(paramsF(a,:),StimLevelsFine);
     end
     
-    thresholds(iPhase,:) = {params.Phase(iPhase), 1/paramsF(2,1), SD(2,1), pTLR};
+    if ~isempty(pTLR)
+        thresholds(iPhase,:) = {params.Phase(iPhase), 1/paramsF(2,1), SD(2,1), pTLR};
+    else 
+        thresholds(iPhase,:) = {params.Phase(iPhase), nan, nan, nan};
+    end
     
 
     subplot(1, n.Phase, iPhase)
     semilogx(StimLevels', NumPos'./OutOfNum','-o')
     hold on
-    semilogx(StimLevelsFine, pModelL,'m')
-    semilogx(StimLevelsFine, pModelF,'k')
-    title(['p=' num2str(pTLR)])
+    if ~isempty(pTLR)
+        semilogx(StimLevelsFine, pModelL,'m')
+        semilogx(StimLevelsFine, pModelF,'k')
+        title(['p=' num2str(pTLR)])
+    end
     if iPhase == 1
        ylabel('Prop. Correct'); 
        xlabel('Contrast');
