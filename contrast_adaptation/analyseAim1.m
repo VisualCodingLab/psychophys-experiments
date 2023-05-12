@@ -1,7 +1,7 @@
 %% Find and load the data
 clear all; clc; 
 analyse = 'aim1_phaseRev'; % aim1 | aim1_phaseRev
-subject = 'QV'; 
+subject = 'RW'; 
 
 switch analyse
     case 'aim1'
@@ -61,7 +61,7 @@ end
 %% Fit the psychometric functions
 PF = @PAL_Weibull;         
 paramsValues = [0.01 3 0.5 0.02]; % entries 3+4 are guess/lapse rate 
-B = 1000; % should really be 1000 or more. Using 100 cause it's faster.
+B = 100; % should really be 1000 or more. Using 100 cause it's faster.
 
 
 figure(1); clf;
@@ -78,7 +78,7 @@ for iFreq = 1:n.Freq
         paramsValues, B, PF,'fullerSlopes','constrained', ...
         'lesserLapserates', 'unconstrained'); 
 
-    [SD paramsSim LLSim converged] = ...
+    [SD, paramsSim, LLSim, converged] = ...
         PAL_PFML_BootstrapNonParametricMultiple(StimLevels, NumPos, ...
         OutOfNum, paramsF, B, PF); 
 
@@ -88,7 +88,8 @@ for iFreq = 1:n.Freq
     for a = 1:2
         pModelF(a,:) = PF(paramsF(a,:),StimLevelsFine);
         if ~isempty(pTLR)
-            thresholds{a}(iFreq,:) = {params.Freq(iFreq), 1/paramsF(a,1), SD(a,1), pTLR};
+            thresholds{a}(iFreq,:) = {params.Freq(iFreq), 1/paramsF(a,1), ...
+                                                std(1./paramsSim(:, a, 1)), pTLR};
         end
     end
 
