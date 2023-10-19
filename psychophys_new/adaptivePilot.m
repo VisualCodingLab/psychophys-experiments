@@ -4,9 +4,25 @@ clear all
 % Prerequisites. 
 import neurostim.*
 
-%============= Enter inputs =====================
+method = 'STAIRCASE'; % Set this to QUEST or STAIRCASE
+pianola = false; % Set this to true to simulate responses, false to provide your own responses ('a'=left,'l' = right).
 
-% background properties
+
+%% ====== Setup CIC and the stimuli ====== %
+
+c =  marmolab.rigcfg;   
+c.paradigm='PhaseComboGabor';
+c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
+c.itiClear = 1;
+c.iti= 250;
+%c.saveEveryN = length(contrastList)*length(phaseList)*nRepeatsPerCond; % only save between blocks
+c.trialDuration = Inf; % A trial can only be ended by a mouse click
+c.cursor = 'none'; % hide? 
+c.screen.color.background = 0.5*ones(1,3);
+
+%% ====== Enter inputs ====== %
+
+% background properties (noise background)
 hasBackground = 0;
 
 % pedestal properties
@@ -24,23 +40,11 @@ testEccentricity = 5;
 testDuration = 500;
 nBlocks = 3;
 
-% Setup CIC and the stimuli.
-c =  marmolab.rigcfg;   
-c.paradigm='PhaseComboGabor';
+%% ====== Create Stimuli ====== %
 
-c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
-c.itiClear = 1;
-c.iti= 250;
-%c.saveEveryN = length(contrastList)*length(phaseList)*nRepeatsPerCond; % only save between blocks
-c.trialDuration = Inf; % A trial can only be ended by a mouse click
-c.cursor = 'none'; % hide? 
-c.screen.color.background = 0.5*ones(1,3);
-
-            
-%===== Create Stimuli
 % Add center point fixation 
-% Note: Could possible add eye tracker to see if participant
-% is looking at the center point fixation
+% Note: Could possible add eye tracker to see if participant is looking at the center point fixation
+
 f = stimuli.fixation(c,'centerPoint');       % Add a fixation point stimulus
 f.shape             = 'ABC';
 f.color             = [1 1 1];
@@ -52,8 +56,24 @@ f.Y                 = 0;
 f.on                = 0;                % Always on
 f.duration          = Inf;
 
+%% ====== Enforce Fixation ====== %
 
+% Make sure there is an eye tracker (or at least a virtual one)
 
+if isempty(c.pluginsByClass('eyetracker'))
+    e = neurostim.plugins.eyetracker(c);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
+    e.useMouse = true;
+end
+
+fix = behaviors.fixate(c,'fixation');
+fix.from            = 500;  % If fixation has not been achieved at this time, move to the next trial
+fix.to              = '@choice.stopTime';   % Require fixation until the choice is done.
+fix.X               = 0;
+fix.Y               = 0; 
+fix.tolerance       = 2;
+fix.failEndsTrial  = false; % Make false during piloting
+
+%% 
 % Test gabor to display left or right
 
 g=stimuli.gabor(c,'gabor_test'); % Gabor to display during testing (either left or right) 
