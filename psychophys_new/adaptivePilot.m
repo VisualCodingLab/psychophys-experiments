@@ -20,25 +20,46 @@ c.trialDuration = Inf; % A trial can only be ended by a mouse click
 c.cursor = 'none'; % hide? 
 c.screen.color.background = 0.5*ones(1,3);
 
-%% ====== Enter inputs ====== %
+%% ====== Setup the conditions in a design object ====== %
+
+d=design('phase'); % Can change orientation/phase/frequency
+d.fac1.grating.phase = [0 45 90 180];
+nrLevels = d.nrLevels;
+
+% We also want to change some parameters in an "adaptive" way. You do this by assigning values 
+% to the .conditions field of the design object .  
+if strcmpi(method,'STAIRCASE')
+    % Consider the 1-up 1-down staircase with fixed 0.01 stepsize on contrast.
+    % With user responses, you use:
+    adpt = plugins.nDown1UpStaircase(c,'@choice.correct',rand,'min',0,'max',1,'weights',[1 1],'delta',0.1);
+    % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
+    d.conditions(:,1).grating.contrast = duplicate(adpt,[nrLevels 1]);
+end
+
+% Create a block for this design and specify the repeats per design
+myBlock=block('myBlock',d);
+myBlock.nrRepeats = 5; % Because the design has 2 conditions, this results in 2*nrRepeats trials. Make small for piloting
+c.run(myBlock);
+
+%% ====== Enter inputs ====== % /This is from the original aim3 code/
 
 % background properties (noise background)
-hasBackground = 0;
+%hasBackground = 0;
 
 % pedestal properties
-pedestalFrequency = 1;
-pedestalContrast  = 0.2; %0.25; %0.3;
+%pedestalFrequency = 1;
+%pedestalContrast  = 0.2; %0.25; %0.3;
 
 % test properties
-testFreq = pedestalFrequency*3;
-contrastList  = logspace(-2, -0.5, 8);          % the contrast of the test pattern
-phaseList = [0 7.5 15 30 60 90 180];
+%testFreq = pedestalFrequency*3;
+%contrastList  = logspace(-2, -0.5, 8);    % the contrast of the test pattern
+%phaseList = [0 7.5 15 30 60 90 180];
 
 % experiment properties
-nRepeatsPerCond = 7;    % conditions: phase/Contrast combos
-testEccentricity = 5;
-testDuration = 500;
-nBlocks = 3;
+%nRepeatsPerCond = 7;    % conditions: phase/Contrast combos
+%testEccentricity = 5;
+%testDuration = 500;
+%nBlocks = 3;
 
 %% ====== Create Stimuli ====== %
 
@@ -73,8 +94,7 @@ fix.Y               = 0;
 fix.tolerance       = 2;
 fix.failEndsTrial  = false; % Make false during piloting
 
-%% 
-% Test gabor to display left or right
+%% ====== Test gabor to display left or right ====== %
 
 g=stimuli.gabor(c,'gabor_test'); % Gabor to display during testing (either left or right) 
 g.sigma = 0.9;
@@ -213,4 +233,31 @@ function beginTrial(c)
   eccentricity = c.gR_pedestal.X;
   c.gabor_test.X = randLogical*eccentricity + ~randLogical * (-1*eccentricity);
   
+end
+
+%% ====== Do some analysis on the data ====== %%
+import neurostim.utils.*;
+% Retrieve orientation and contrast settings for each trial. Trials in
+% which those parameters did not change willl not have an entry in the log,
+% so we have to fill-in the values (e..g if there is no entry in the log
+% for trial N, take the value set in trial N-1.
+
+% Because the parameter can be assigned different values (e.g. the default
+% value) at some earlier point in the trial; we only want to retrieve the
+% value immediately after the stimulus appeared on the screen. Because this is logged
+% by the startTime event, we use the 'after' option of the parameters.get
+% member function
+orientation = get(c.grating.prms.orientation,'after','startTime');
+contrast = get(c.grating.prms.contrast,'after','startTime');
+uV = unique(orientation);
+figure;
+hold on
+for u=uV(:)'
+    stay = orientation ==u;
+    plot(contrast(stay),'.-');
+end
+xlabel 'Trial'
+ylabel 'Contrast '
+title ([method ' in action...'])
+legend(num2str(uV(:)))
 end
