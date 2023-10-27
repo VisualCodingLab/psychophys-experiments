@@ -1,12 +1,12 @@
 % Written by LZ Mar 2023
-
+ 
 clear all
+
 % Prerequisites. 
 import neurostim.*
 
 method = 'STAIRCASE'; % Set this to QUEST or STAIRCASE
-pianola = false; % Set this to true to simulate responses, false to provide your own responses ('a'=left,'l' = right).
-
+pianola = false; % Did not include the simulated observe code, always set to 'false'
 
 %% ====== Setup CIC and the stimuli ====== %
 
@@ -19,6 +19,76 @@ c.iti= 250;
 c.trialDuration = Inf; % A trial can only be ended by a mouse click
 c.cursor = 'none'; % hide? 
 c.screen.color.background = 0.5*ones(1,3);
+c.subjectNr= 0;
+
+%% ====== Add a Gabor ====== %
+% We'll simulate an experiment in which
+% the grating's location (left or right) is to be detected
+% and use this to estimate the contrast threshold
+g=stimuli.gabor(c,'grating');
+g.color            = [0.5 0.5 0.5];
+g.contrast         = 0.25;
+g.Y                = 0;
+
+% The simplest adaptive parameter is used to jitter
+% parameters across trials. Use the jitter class for this. 
+% Becuase the same jitter object can be used for all conditions, we assign it
+% to the parameter directly. 
+g.X                = plugins.jitter(c,{10,-10},'distribution','1ofN'); % Jitter the location of the grating on each trial: either 10 or -10 
+% If you'd want to use a different jitter (maybe drawn from a different
+% distribution in different conditions) for each condition, then you specify 
+% the jitter as part of the design (see below)
+g.sigma            = 3;
+g.phaseSpeed       = 0;
+g.orientation      = 0;
+g.mask             = 'CIRCLE';
+g.frequency        = 3;
+g.on               = 0;
+g.duration         = 500;
+
+%% ====== Create Behaviours ====== %
+% Take the user response (Press 'a'  to report detection on the left, press 'l'  for detection on the right)
+k = behaviors.keyResponse(c,'choice');
+k.from = '@grating.on + grating.duration';
+k.maximumRT = 2000;         %Maximum allowable RT is 2000ms
+k.keys = {'a' 'l'};         %Press 'a' for "left" motion, 'l' for "right"
+k.correctFun = '@double(grating.X> 0) + 1';   %Function to define what the correct key is in each trial .It returns the index of the correct response (i.e., key 1 ('a' when X<0 and 2 'l' when X>0)
+if pianola
+    k.simWhat =  simulatedObserver;   % This function will provide a simulated answer
+    k.simWhen = '@grating.on + grating.duration+50';  % At this time.
+end
+
+c.trialDuration = '@choice.stopTime';       %End the trial as soon as the 2AFC response is made.
+
+%% ====== Enforce Fixation ====== %
+% Add center point fixation 
+% Note: Could possible add eye tracker to see if participant is looking at the center point fixation
+
+f = stimuli.fixation(c,'centerPoint');       % Add a fixation point stimulus
+f.shape             = 'ABC';
+f.color             = [1 1 1];
+f.color2            = c.screen.color.background; 
+f.size              = 0.75; 
+f.size2             = 0.15;
+f.X                 = 0;
+f.Y                 = 0;
+f.on                = 0;                % Always on
+f.duration          = Inf;
+
+% Make sure there is an eye tracker (or at least a virtual one)
+
+if isempty(c.pluginsByClass('eyetracker'))
+    e = neurostim.plugins.eyetracker(c);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
+    e.useMouse = true;
+end
+
+fix = behaviors.fixate(c,'fixation');
+fix.from            = 500;  % If fixation has not been achieved at this time, move to the next trial
+fix.to              = '@choice.stopTime';   % Require fixation until the choice is done.
+fix.X               = 0;
+fix.Y               = 0; 
+fix.tolerance       = 2;
+fix.failEndsTrial  = false; % Make false during piloting
 
 %% ====== Setup the conditions in a design object ====== %
 
@@ -27,11 +97,10 @@ d.fac1.grating.phase = [0 45 90 180];
 nrLevels = d.nrLevels;
 
 % We also want to change some parameters in an "adaptive" way. You do this by assigning values 
-% to the .conditions field of the design object .  
+% to the .conditions field of the design object.
+
 if strcmpi(method,'STAIRCASE')
-    % Consider the 1-up 1-down staircase with fixed 0.01 stepsize on contrast.
-    % With user responses, you use:
-    adpt = plugins.nDown1UpStaircase(c,'@choice.correct',rand,'min',0,'max',1,'weights',[1 1],'delta',0.1);
+    adpt = plugins.nDown1UpStaircase(c,'@choice.correct',rand,'min',0,'max',1,'weights',[2 3],'delta',0.01); %2-up 3-down, 0.01 step-size
     % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d.conditions(:,1).grating.contrast = duplicate(adpt,[nrLevels 1]);
 end
@@ -60,39 +129,6 @@ c.run(myBlock);
 %testEccentricity = 5;
 %testDuration = 500;
 %nBlocks = 3;
-
-%% ====== Create Stimuli ====== %
-
-% Add center point fixation 
-% Note: Could possible add eye tracker to see if participant is looking at the center point fixation
-
-f = stimuli.fixation(c,'centerPoint');       % Add a fixation point stimulus
-f.shape             = 'ABC';
-f.color             = [1 1 1];
-f.color2            = c.screen.color.background;
-f.size              = 0.75; 
-f.size2             = 0.15;
-f.X                 = 0;
-f.Y                 = 0;
-f.on                = 0;                % Always on
-f.duration          = Inf;
-
-%% ====== Enforce Fixation ====== %
-
-% Make sure there is an eye tracker (or at least a virtual one)
-
-if isempty(c.pluginsByClass('eyetracker'))
-    e = neurostim.plugins.eyetracker(c);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
-    e.useMouse = true;
-end
-
-fix = behaviors.fixate(c,'fixation');
-fix.from            = 500;  % If fixation has not been achieved at this time, move to the next trial
-fix.to              = '@choice.stopTime';   % Require fixation until the choice is done.
-fix.X               = 0;
-fix.Y               = 0; 
-fix.tolerance       = 2;
-fix.failEndsTrial  = false; % Make false during piloting
 
 %% ====== Test gabor to display left or right ====== %
 
@@ -236,7 +272,7 @@ function beginTrial(c)
 end
 
 %% ====== Do some analysis on the data ====== %%
-import neurostim.utils.*;
+% import neurostim.utils.*;
 % Retrieve orientation and contrast settings for each trial. Trials in
 % which those parameters did not change willl not have an entry in the log,
 % so we have to fill-in the values (e..g if there is no entry in the log
@@ -247,17 +283,17 @@ import neurostim.utils.*;
 % value immediately after the stimulus appeared on the screen. Because this is logged
 % by the startTime event, we use the 'after' option of the parameters.get
 % member function
-orientation = get(c.grating.prms.orientation,'after','startTime');
-contrast = get(c.grating.prms.contrast,'after','startTime');
-uV = unique(orientation);
-figure;
-hold on
-for u=uV(:)'
-    stay = orientation ==u;
-    plot(contrast(stay),'.-');
-end
-xlabel 'Trial'
-ylabel 'Contrast '
-title ([method ' in action...'])
-legend(num2str(uV(:)))
-end
+% orientation = get(c.grating.prms.orientation,'after','startTime');
+% contrast = get(c.grating.prms.contrast,'after','startTime');
+% uV = unique(orientation);
+% figure;
+% hold on
+% for u=uV(:)'
+%     stay = orientation ==u;
+%     plot(contrast(stay),'.-');
+% end
+% xlabel 'Trial'
+% ylabel 'Contrast '
+% title ([method ' in action...'])
+% legend(num2str(uV(:)))
+% end
