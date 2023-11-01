@@ -1,5 +1,6 @@
 % Written by LZ Mar 2023
- 
+% Edited by IHT Nov 2023
+
 clear all
 
 % Prerequisites. 
@@ -17,55 +18,13 @@ c.itiClear = 1;
 c.iti= 250;
 %c.saveEveryN = length(contrastList)*length(phaseList)*nRepeatsPerCond; % only save between blocks
 c.trialDuration = Inf; % A trial can only be ended by a mouse click
-c.cursor = 'none'; % hide? 
+c.cursor = 'none'; % Hide? 
 c.screen.color.background = 0.5*ones(1,3);
-c.subjectNr= 0;
-
-%% ====== Add a Gabor ====== %
-% We'll simulate an experiment in which
-% the grating's location (left or right) is to be detected
-% % and use this to estimate the contrast threshold
-% g=stimuli.gabor(c,'grating');
-% g.color            = [0.5 0.5 0.5];
-% g.contrast         = 0.25;
-% g.Y                = 0;
-% 
-% % The simplest adaptive parameter is used to jitter
-% % parameters across trials. Use the jitter class for this. 
-% % Becuase the same jitter object can be used for all conditions, we assign it
-% % to the parameter directly. 
-% g.X                = plugins.jitter(c,{10,-10},'distribution','1ofN'); % Jitter the location of the grating on each trial: either 10 or -10 
-% % If you'd want to use a different jitter (maybe drawn from a different
-% % distribution in different conditions) for each condition, then you specify 
-% % the jitter as part of the design (see below)
-% g.sigma            = 3;
-% g.phaseSpeed       = 0;
-% g.orientation      = 0;
-% g.mask             = 'CIRCLE';
-% g.frequency        = 3;
-% g.on               = 0;
-% g.duration         = 500;
-
-%% ====== Create Behaviours ====== %
-% Take the user response (Press 'a'  to report detection on the left, press 'l'  for detection on the right)
-% k = behaviors.keyResponse(c,'choice');
-% k.from = '@grating.on + grating.duration';
-% k.maximumRT = 2000;         %Maximum allowable RT is 2000ms
-% k.keys = {'a' 'l'};         %Press 'a' for "left" motion, 'l' for "right"
-% k.correctFun = '@double(grating.X> 0) + 1';   %Function to define what the correct key is in each trial .It returns the index of the correct response (i.e., key 1 ('a' when X<0 and 2 'l' when X>0)
-% if pianola
-%     k.simWhat =  simulatedObserver;   % This function will provide a simulated answer
-%     k.simWhen = '@grating.on + grating.duration+50';  % At this time.
-% end
-% 
-% c.trialDuration = '@choice.stopTime';       %End the trial as soon as the 2AFC response is made.
+%c.subjectNr= 0; % Gives a subject code, turn off to manually input
 
 %% ====== Enforce Fixation ====== %
-% Add center point fixation 
-% Note: Could possible add eye tracker 
-% to see if participant is looking at the center point fixation
 
-f = stimuli.fixation(c,'centerPoint');       % Add a fixation point stimulus
+f = stimuli.fixation(c,'centerPoint'); % Add a fixation point stimulus
 f.shape             = 'ABC';
 f.color             = [1 1 1];
 f.color2            = c.screen.color.background; 
@@ -73,52 +32,48 @@ f.size              = 0.75;
 f.size2             = 0.15;
 f.X                 = 0;
 f.Y                 = 0;
-f.on                = 0;                % Always on
+f.on                = 0; % Always on
 f.duration          = Inf;
 
 % Make sure there is an eye tracker (or at least a virtual one)
 
 if isempty(c.pluginsByClass('eyetracker'))
-    e = neurostim.plugins.eyetracker(c);      %Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
+    e = neurostim.plugins.eyetracker(c); % Eye tracker plugin not yet added, so use the virtual one. Mouse is used to control gaze position (click)
     e.useMouse = true;
 end
 
 fix = behaviors.fixate(c,'fixation');
-fix.from            = 500;  % If fixation has not been achieved at this time, move to the next trial
-fix.to              = '@choice.stopTime';   % Require fixation until the choice is done.
+fix.from            = 500; % If fixation has not been achieved at this time, move to the next trial
+fix.to              = '@choice.stopTime'; % Require fixation until the choice is done.
 fix.X               = 0;
 fix.Y               = 0; 
 fix.tolerance       = 2;
 fix.failEndsTrial  = false; % Make false during piloting
 
-
-
-%% ====== Enter inputs ====== %% /This is from the original aim3 code/
+%% ====== Enter inputs ====== %
 
 % background properties (noise background)
 hasBackground = 0;
 
 % pedestal properties
 pedestalFrequency = 1;
-pedestalContrast  = 0.2; %0.25; %0.3;
-
+pedestalContrast  = 0.2; 
 
 % test properties
-% testFreq = pedestalFrequency*3;
-% contrastList  = logspace(-2, -0.5, 8);    % the contrast of the test pattern
-% phaseList = [0 7.5 15 30 60 90 180];
-% 
+testFreq = pedestalFrequency*3;
+phaseList = [0 45 90 180];
+
 % experiment properties
-% nRepeatsPerCond = 7;    % conditions: phase/Contrast combos
+nRepeatsPerCond = 7; % phaseList*nRepeatsPerCond=blockLength
 testEccentricity = 5;
 testDuration = 500;
-% nBlocks = 3;
+nBlocks = 3;
 
-%% ====== Test gabor to display left or right ====== %
+%% ====== Test gabor properties ====== %
 
 g=stimuli.gabor(c,'gabor_test'); % Gabor to display during testing (either left or right) 
 g.sigma = 0.9;
-g.frequency = pedestalFrequency*3 %testFreq;
+g.frequency = testFreq;
 g.mask = 'GAUSS';
 g.phaseSpeed = 0;
 g.orientation = 90;
@@ -136,15 +91,19 @@ g.contrast = 1;
 %    colorList{iCon} = tmp; 
 % end
 
-% Pedestal gabors
+%% ====== Pedestal gabor properties ====== %
+
 % Any changes should be only made to gL (as gR copies from gL)
 % Realistically, the only changes made should be to frequency,
 % contrast (although should be 1) and duration (vector of
 % durations)
+
 gL = duplicate(g,'gL_pedestal'); % Additional gabor to display for adapting image (left acts as master)
+
 % Below statement: If duration is 0 (i.e. no adapter), then
 % turn the stimuli on immediately (don't wait for fixation) to
 % prevent double fixation waiting time
+
 gL.color = [0.5 0.5 0.5 pedestalContrast];
 gL.orientation = 90;
 gL.duration = testDuration; % Default no adapter
@@ -156,13 +115,15 @@ gL.frequency = pedestalFrequency;
 gR = duplicate(gL, 'gR_pedestal'); % Right adapter (duplicates gL)
 gR.X = testEccentricity;
 
-% 1/f background noise
+%% ====== 1/f background noise ====== %
+
 bgL = lightweightTexture(c, 'noise_L');
 stopLog(c.noise_L.prms.imgMask);
 stopLog(c.noise_L.prms.texImg);
 bgL.width = 7;
 bgL.height = 7; 
 bgL.X = -1*testEccentricity;
+
 if hasBackground
     bgL.on = 0;
 else
@@ -174,23 +135,21 @@ stopLog(c.noise_R.prms.imgMask);
 stopLog(c.noise_R.prms.texImg);
 bgR.X = testEccentricity;
             
-%===== Create Behaviours
+%% ===== Create Behaviours =====%
+
 % Key behaviour (L for left, R for right)
+
 k = behaviors.keyResponse(c,'choice');
 k.verbose = false;
 k.from = '@gabor_test.on'; % Only start recording after test turns on
-k.maximumRT= Inf;                   %Allow inf time for a response
-k.keys = {'a' 'l'};                                 %Press 'A' for "left" gabor, 'L' for "right" gabor -> 
-                                                    %Note: This was changed
-                                                    %from R & L because R
-                                                    %is on the left side of
-                                                    %the keyboard and L is
-                                                    %on the right side of
-                                                    %the keyboard
-k.correctFun = '@(gabor_test.X > 0) + 1';   %Function returns the index of the correct response (i.e., key 1 -> L or 2 -> R)
+k.maximumRT= Inf; % Allow inf time for a response
+k.keys = {'a' 'l'}; % Press 'A' for "left" gabor, 'L' for "right" gabor 
+                                                    
+k.correctFun = '@(gabor_test.X > 0) + 1'; % Function returns the index of the correct response (i.e., key 1 -> L or 2 -> R)
 k.required = false; % Do not repeat if incorrect response
+
 % Define trial duration
-c.trialDuration = '@choice.stopTime';       %End the trial as soon as the 2AFC response is made.
+c.trialDuration = '@choice.stopTime'; % End the trial as soon as the 2AFC response is made.
 k.failEndsTrial = false;
 k.successEndsTrial  = false;
            
@@ -203,53 +162,44 @@ end
 
 %% ====== Setup the conditions in a design object ====== %
 
-d=design('phase'); % Can change orientation/phase/frequency
-d.fac1.gabor_test.phase = [0 45 90 180];
-nrLevels = d.nrLevels;
-
-% We also want to change some parameters in an "adaptive" way. You do this by assigning values 
-% to the .conditions field of the design object.
+d{1}=design('phase'); % Can change to orientation/phase/frequency
+d{1}.fac1.gabor_test.phase = phaseList;
+nrLevels = d{1}.nrLevels;
 
 if strcmpi(method,'STAIRCASE')
-    adpt = plugins.nDown1UpStaircase(c,'@choice.correct',rand,'min',0,'max',1,'weights',[2 3],'delta',0.01); %2-up 3-down, 0.01 step-size
+    adpt = plugins.nDown1UpStaircase(c,'@choice.correct',rand,'min',0,'max',1,'weights',[2 3],'delta',0.01); % [up, down], 0.01 step-size
     % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
-    d.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);
+    d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);
 end
 
 % Create a block for this design and specify the repeats per design
-myBlock=block('myBlock',d);
-myBlock.nrRepeats = 5; % Because the design has 2 conditions, this results in 2*nrRepeats trials. Make small for piloting
-% c.run(myBlock);
-% Experimental setup
-% % Define experimental setup
-% d{1}= design('Pedestal-Test');
-% d{1}.fac1.gabor_test.color = colorList; 
-% d{1}.fac2.gabor_test.phase = phaseList;
-% 
-% % load designs into blocks
-% 
-% for i=1:nBlocks
-%     myBlock{i}=block([d{1}.name num2str(i)],d{1});             %Create a block of trials using the factorial. Type "help neurostim/block" for more options.
-%     myBlock{i}.nrRepeats=nRepeatsPerCond;
-%     myBlock{i}.afterMessage = 'Take a break!';
-%     myBlock{i}.beforeMessage = ['Block ', num2str(i) ' of ' num2str(nBlocks)];
-% end
+for i=1:nBlocks
+    myBlock{i}=block([d{1}.name num2str(i)],d{1}); % Create a block of trials using the factorial. Type "help neurostim/block" for more options.
+    myBlock{i}.nrRepeats=nRepeatsPerCond;
+    myBlock{i}.afterMessage = 'Take a break!';
+    myBlock{i}.beforeMessage = ['Block ', num2str(i) ' of ' num2str(nBlocks)];
+end
 
 %%
-c.run(myBlock);
+c.run(myBlock{:});
 
-% ====== Do some analysis on the data ====== %%
+%% ====== Do some analysis on the data ====== %
+
+% Visualise the staircase in action
+
 import neurostim.utils.*;
+
 % Retrieve orientation and contrast settings for each trial. Trials in
 % which those parameters did not change willl not have an entry in the log,
 % so we have to fill-in the values (e..g if there is no entry in the log
 % for trial N, take the value set in trial N-1.
-% 
+
 % Because the parameter can be assigned different values (e.g. the default
 % value) at some earlier point in the trial; we only want to retrieve the
 % value immediately after the stimulus appeared on the screen. Because this is logged
 % by the startTime event, we use the 'after' option of the parameters.get
 % member function
+
 orientation = get(c.gabor_test.prms.phase,'after','startTime');
 contrast = get(c.gabor_test.prms.contrast,'after','startTime');
 uV = unique(orientation);
@@ -263,11 +213,10 @@ xlabel 'Trial'
 ylabel 'Contrast '
 title ([method ' in action...'])
 legend(num2str(uV(:)))
-%end
 
+%% ====== Functions ====== %
 
-%% Functions
-
+% Must be at the end
 
 function img = getNoiseIm(sz, rg)
     img = makeNoisePatt(sz, 0, 180, 1.5);
@@ -300,4 +249,3 @@ function beginTrial(c)
   c.gabor_test.X = randLogical*eccentricity + ~randLogical * (-1*eccentricity);
   
 end
-
