@@ -6,7 +6,7 @@ clear all
 % Prerequisites. 
 import neurostim.*
 
-method = 'STAIRCASE'; % Set this to QUEST or STAIRCASE
+method = 'QUEST'; % Set this to QUEST or STAIRCASE
 pianola = false; % Did not include the simulated observe code, always set to 'false'
 
 %% ====== Setup CIC and the stimuli ====== %
@@ -61,10 +61,10 @@ pedestalContrast  = 0.2;
 
 % test properties
 testFreq = pedestalFrequency*3;
-phaseList = [0 45 90 180];
+phaseList = [0 90 180];
 
 % experiment properties
-nRepeatsPerCond = 7; % phaseList*nRepeatsPerCond=blockLength
+nRepeatsPerCond = 5; % phaseList*nRepeatsPerCond=blockLength
 testEccentricity = 5;
 testDuration = 500;
 nBlocks = 3;
@@ -166,22 +166,52 @@ d{1}=design('phase'); % Can change to orientation/phase/frequency
 d{1}.fac1.gabor_test.phase = phaseList;
 nrLevels = d{1}.nrLevels;
 
-if strcmpi(method,'STAIRCASE')
+if strcmpi(method,'QUEST')
+  % To estimate threshold adaptively, the Quest method can be used. We need
+    % to define two functions to map the random intensity variable with values between
+    % -Inf and Inf that Quest "optimizes" to a meaningful contrast value. We'll
+    % assume that the Quest intensity models the log10 of the contrast. i2p and
+    % p2i implement that mapping.
+    
+    i2p = @(x) (min(10.^x,1)); % Map Quest intensity to contrast values in [0 , 1]
+    p2i = @(x) (log10(x));
+    
+  % Define a quest procedure with an initial guess, and our confidence in
+    % that guess, and tell the Quest procedure which function to evaluate to
+    % determine whether the response was correct or not. To setup Quest to use
+    % the subject's responses, use the following:
+    
+    % Note again the .conditions usage that applies the Quest plugin to each level of the first factor.
+    % An important difference with the Jitter parameter above is that we
+    % want to have a separate quest for the two orientations. To achieve
+    % that we could explicitly create two Quest plugins and assign those to the
+    % conditions(:,1).grat ing.contrast = {quest1,quest2}, but in the current example both Quests have
+    % identical parameters, so it is easier to duplicate them using the duplicate function.
+     
+    adpt = plugins.quest(c, '@choice.correct','guess',p2i(0.25),'guessSD',4,'i2p',i2p,'p2i',p2i);
+    adpt.requiredBehaviors = 'fixation';
+    d{1}.conditions(:,1).grating.contrast = duplicate(adpt,[nrLevels 1]);  
+    
+elseif strcmpi(method,'STAIRCASE')
     adpt = plugins.nDown1UpStaircase(c,'@choice.correct',rand,'min',0,'max',1,'weights',[2 3],'delta',0.01); % [up, down], 0.01 step-size
     % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);
 end
 
+myBlock=block('myBlock',d{1});
+myBlock.nrRepeats = 50; % Because the design has X conditions, this results in X*nrRepeats trials.
+c.run(myBlock);
+
 % Create a block for this design and specify the repeats per design
-for i=1:nBlocks
-    myBlock{i}=block([d{1}.name num2str(i)],d{1}); % Create a block of trials using the factorial. Type "help neurostim/block" for more options.
-    myBlock{i}.nrRepeats=nRepeatsPerCond;
-    myBlock{i}.afterMessage = 'Take a break!';
-    myBlock{i}.beforeMessage = ['Block ', num2str(i) ' of ' num2str(nBlocks)];
-end
+% for i=1:nBlocks
+%     myBlock{i}=block([d{1}.name num2str(i)],d{1}); % Create a block of trials using the factorial. Type "help neurostim/block" for more options.
+%     myBlock{i}.nrRepeats=nRepeatsPerCond;
+%     myBlock{i}.afterMessage = 'Take a break!';
+%     myBlock{i}.beforeMessage = ['Block ', num2str(i) ' of ' num2str(nBlocks)];
+% end
 
 %%
-c.run(myBlock{:});
+% c.run(myBlock{:});
 
 %% ====== Do some analysis on the data ====== %
 
