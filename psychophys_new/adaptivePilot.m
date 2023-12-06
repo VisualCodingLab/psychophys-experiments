@@ -61,13 +61,13 @@ pedestalContrast  = 0.2;
 
 % test properties
 testFreq = pedestalFrequency*3;
-phaseList = [0 90];
+phaseList = [0 7.5 15 30 60 90 180];
 
 % experiment properties
-nRepeatsPerCond = 50; % phaseList*nRepeatsPerCond=blockLength
+nRepeatsPerCond = 10; % phaseList*nRepeatsPerCond=blockLength
 testEccentricity = 5;
 testDuration = 500;
-nBlocks = 1;
+nBlocks = 7;
 
 %% ====== Test gabor properties ====== %
 
@@ -176,8 +176,7 @@ if strcmpi(method,'QUEST')
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);  
     
 elseif strcmpi(method,'STAIRCASE')
-    adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',2,'min',0,'max',1,'weights',[1 1],'delta',0.01); % [up, down], 0.01 step-size
-        
+    adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015); % [up, down], 0.01 step-size
     % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);
 end
@@ -225,9 +224,13 @@ end
 uV = unique(phase);
 figure;
 hold on
+a=1;
 for u=uV(:)'
     stay = phase ==u;
     plot(contrast(stay),'.-');
+    tmp = contrast(stay);
+    var(a) = tmp(end);
+    a = a+1;
 end
 xlabel 'Trial'
 ylabel 'Contrast '

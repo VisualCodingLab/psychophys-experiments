@@ -93,7 +93,7 @@ classdef staircaseStopCase < neurostim.plugins.adaptive
         function v= getAdaptValue(o)
             % Return the current, internally stored, value
             fprintf('Delta at getAdapt = %1.3f \n', o.delta); 
-            if o.reversals >= 10
+            if o.reversals >= 9
                 o.cic.endExperiment() % when o.value is 0, end the experiment
             end
             v = o.value; %otherwise assign value to v, start next trial
