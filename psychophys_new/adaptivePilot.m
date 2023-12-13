@@ -44,11 +44,11 @@ end
 
 fix = behaviors.fixate(c,'fixation');
 fix.from            = 500; % If fixation has not been achieved at this time, move to the next trial
-fix.to              = '@choice.stopTime'; % Require fixation until the choice is done.
+fix.to              = '@gabor_test.duration'; % Require fixation until the choice is done.
 fix.X               = 0;
 fix.Y               = 0; 
 fix.tolerance       = 2;
-fix.failEndsTrial  = false; % Make false during piloting
+fix.failEndsTrial  = true; % Make false during piloting
 
 %% ====== Enter inputs ====== %
 
@@ -64,10 +64,10 @@ testFreq = pedestalFrequency*3;
 phaseList = [0 7.5 15 30 60 90 180];
 
 % experiment properties
-nRepeatsPerCond = 10; % phaseList*nRepeatsPerCond=blockLength
+nRepeatsPerCond = 30; % phaseList*nRepeatsPerCond=blockLength
 testEccentricity = 5;
 testDuration = 500;
-nBlocks = 7;
+nBlocks = 10;
 
 %% ====== Test gabor properties ====== %
 
@@ -172,12 +172,12 @@ if strcmpi(method,'QUEST')
     p2i = @(x) (log10(x));
      
     adpt = plugins.quest(c, '@choice.correct','guess',p2i(0.25),'guessSD',4,'i2p',i2p,'p2i',p2i);
-    % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
+    adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);  
     
 elseif strcmpi(method,'STAIRCASE')
     adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015); % [up, down], 0.01 step-size
-    % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
+    adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);
 end
 
@@ -229,13 +229,15 @@ for u=uV(:)'
     stay = phase ==u;
     plot(contrast(stay),'.-');
     tmp = contrast(stay);
-    var(a) = tmp(end);
+    thresh(a) = tmp(end);
     a = a+1;
 end
 xlabel 'Trial'
 ylabel 'Contrast '
 title ([method ' in action...'])
 legend(num2str(uV(:)))
+
+sprintf('%1.4f, ', thresh)
 
 %% ====== Functions ====== %
 
