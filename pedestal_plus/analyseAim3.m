@@ -3,8 +3,8 @@ clear all; close all; clc
 
 subject = 'EK'; 
 background = 'off'; 
-path = '~/Desktop/Data/Aim 3/';
-B = 100; %how many simulations for bootstrapping
+path = '~/Desktop/data/Aim3/';
+B = 10; %how many simulations for bootstrapping
 
 sList = {'QQ', 'QV', 'OY', 'EK'};
 
@@ -18,17 +18,14 @@ for iSubj = 1:length(sList)
         case 'QV'
             switch background 
                 case 'off'
-                    dFile = {'QV.PhaseComboGabor.153458.mat','QV.PhaseComboGabor.160555.mat',...
-                             'QV.PhaseComboGabor.095508.mat' };
+                    dFile = {'QV.PhaseComboGabor.153458.mat'};
                 case 'on'
-                    dFile = {'QV.PhaseComboGabor.092847.mat','QV.PhaseComboGabor.094554.mat',...
-                             'QV.PhaseComboGabor.102356.mat'};
+                    dFile = {'QV.PhaseComboGabor.092847.mat'};
             end
         case 'QQ'
             switch background 
                 case 'off'
-                    dFile = {'QQ.PhaseComboGabor.094629.mat','QQ.PhaseComboGabor.113435.mat',...
-                             'QQ.PhaseComboGabor.120804.mat' };
+                    dFile = {'QQ.PhaseComboGabor.094629.mat'};
                 case 'on'
                     dFile = {'QQ.PhaseComboGabor.121551.mat','QQ.PhaseComboGabor.124306.mat',...
                              'QQ.PhaseComboGabor.131643.mat'};
@@ -36,8 +33,7 @@ for iSubj = 1:length(sList)
         case 'OY'
             switch background 
                 case 'off'
-                    dFile = {'OY.PhaseComboGabor.131512.mat','OY.PhaseComboGabor.135004.mat',...
-                             'OY.PhaseComboGabor.083535.mat' };
+                    dFile = {'OY.PhaseComboGabor.131512.mat'};
                 case 'on'
                     dFile = {'OY.PhaseComboGabor.090921.mat','OY.PhaseComboGabor.102235.mat',...
                              'OY.PhaseComboGabor.105723.mat'};
@@ -45,8 +41,7 @@ for iSubj = 1:length(sList)
         case 'EK'
             switch background 
                 case 'off'
-                    dFile = {'EK.PhaseComboGabor.101926.mat','EK.PhaseComboGabor.105557.mat',...
-                             'EK.PhaseComboGabor.111316.mat' };
+                    dFile = {'EK.PhaseComboGabor.101926.mat'};
                 case 'on'
                     dFile = {'EK.PhaseComboGabor.113645.mat','EK.PhaseComboGabor.112324.mat',...
                              'EK.PhaseComboGabor.114737.mat'};

@@ -61,10 +61,10 @@ pedestalContrast  = 0.2;
 
 % test properties
 testFreq = pedestalFrequency*3;
-phaseList = [0 7.5 15 30 60 90 180];
+phaseList = [0 7.5 15 30 60 90 120 150 165 172.5 180];
 
 % experiment properties
-nRepeatsPerCond = 30; % phaseList*nRepeatsPerCond=blockLength
+nRepeatsPerCond = 12; % phaseList*nRepeatsPerCond=blockLength
 testEccentricity = 5;
 testDuration = 500;
 nBlocks = 10;
