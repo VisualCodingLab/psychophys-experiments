@@ -18,18 +18,18 @@ for iSubj = 1:length(sList)
         case 'QV'
             switch background 
                 case 'off'
-                    dFile = {'QV.PhaseComboGabor.133847.mat','QV.PhaseComboGabor.111144.mat',...
-                             'QV.PhaseComboGabor.113014.mat','QV.PhaseComboGabor.114647.mat'};
+                    dFile = {'QV.PhaseComboGabor.154200.mat','QV.PhaseComboGabor.093939.mat',...
+                             'QV.PhaseComboGabor.160056.mat','QV.PhaseComboGabor.100416.mat'};
+                       
                 case 'on'
                     dFile = { };
             end
         case 'QQ'
             switch background 
                 case 'off'
-                    dFile = {'QQ.PhaseComboGabor.140229.mat','QQ.PhaseComboGabor.104635.mat',...
-                             'QQ.PhaseComboGabor.111114.mat','QQ.PhaseComboGabor.114746.mat',...
-                             'QQ.PhaseComboGabor.115540.mat','QQ.PhaseComboGabor.131116.mat',...
-                             'QQ.PhaseComboGabor.132609.mat','QQ.PhaseComboGabor.140145.mat'};
+                    dFile = {'QQ.PhaseComboGabor.125538.mat','QQ.PhaseComboGabor.132452.mat',...
+                             'QQ.PhaseComboGabor.123318.mat','QQ.PhaseComboGabor.133243.mat'};
+
                 case 'on'
                     dFile = { }; 
             end
@@ -57,6 +57,18 @@ for iSubj = 1:length(sList)
     refThresh = testThresh(1); % what condition is acting as reference
     sterror = var(thresh, 1); % calculate based on ests from different files 
     
+    % ---- digression: basic michelson contrast model
+    pList = deg2rad(pCond);
+    peak2peak = zeros(1,length(pList)); 
+    x = 0:0.01:2*pi;
+    for ph = 1:length(pList) 
+        f1 = sin(x);
+        f2 = sin((x+pList(ph))*3); 
+        f3 = f1+f2*0.3; 
+        peak2peak(ph) = range(f3);
+    end
+    
+    
     % --- summarise thresholds
     figure(1);
     subplot(2,2,iSubj); 
@@ -64,7 +76,10 @@ for iSubj = 1:length(sList)
     sterrorElev = var(thresh/refThresh)/sqrt(size(thresh, 1));  % calculate SE in units of threshold elevation
     SEnorm = sqrt(sterrorElev(1)^2+sterrorElev.^2);                  % combine standard errors
    
-    errorbar(pCond, threshElev, SEnorm, 'o-'); hold on;
+   % errorbar(pCond, threshElev, SEnorm, 'o-'); hold on;
+   
+   plotyy(pCond, threshElev, pCond, 1./(peak2peak/peak2peak(1))); hold on;
+   
   %  isSig = thresholds.p_val < 0.05;
   %  plot(thresholds.Phase(isSig), threshElev(isSig)+0.1, '*'); 
     plot([0 180], [1 1], '--k');
