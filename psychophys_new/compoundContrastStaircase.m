@@ -5,7 +5,7 @@ clear all
 
 % Prerequisites. 
 import neurostim.*
-
+method = 'STAIRCASE';
 
 %% ====== Setup CIC and the stimuli ====== %
 
@@ -46,7 +46,7 @@ fix.to              = '@gabor_f1.duration'; % Require fixation until the choice 
 fix.X               = 0;
 fix.Y               = 0; 
 fix.tolerance       = 2;
-fix.failEndsTrial  = false; % Make false during piloting
+fix.failEndsTrial  = true; % Make false during piloting
 
 %% ====== Enter inputs ====== %
 
@@ -59,7 +59,7 @@ pedestalFrequency = 1;
 
 % test properties
 testFreq = pedestalFrequency*3;
-phaseList = 0; %[0 7.5 15 30 60 90 120 150 165 172.5 180];
+phaseList = [0 7.5 15 30 60 90 120 150 165 172.5 180];
 
 % experiment properties
 nRepeatsPerCond = 12; % phaseList*nRepeatsPerCond=blockLength
@@ -119,10 +119,11 @@ d{1}=design('phase'); % Can change to orientation/phase/frequency
 d{1}.fac1.gabor_f3.phase = phaseList;
 nrLevels = d{1}.nrLevels;
 
-adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015); % [up, down], 0.01 step-size
-%adpt.requiredBehaviors = 'fixation'; % Comment for piloting
-d{1}.conditions(:,1).gabor_f1.contrast = duplicate(adpt,[nrLevels 1]);
-
+if strcmpi(method,'STAIRCASE')
+    adpt = staircaseStopCase(c,'@choice.correct',0.1, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015); % [up, down], 0.01 step-size
+    adpt.requiredBehaviors = 'fixation'; % Comment for piloting
+    d{1}.conditions(:,1).gabor_f1.contrast = duplicate(adpt,[nrLevels 1]);
+end
 
 % This is blocking code from the demo. One block only.
 % myBlock=block('myBlock',d{1});
@@ -177,7 +178,7 @@ for u=uV(:)'
 end
 xlabel 'Trial'
 ylabel 'Contrast '
-title ([method ' in action...'])
+% title ([method ' in action...'])
 legend(num2str(uV(:)))
 
 sprintf('%1.4f, ', thresh)
