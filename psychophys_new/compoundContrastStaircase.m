@@ -9,7 +9,7 @@ method = 'STAIRCASE';
 
 %% ====== Setup CIC and the stimuli ====== %
 
-c =  marmolab.rigcfg;   
+c =  myRig; 
 c.paradigm='PhaseComboGabor';
 c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
 c.itiClear = 1;
@@ -46,7 +46,7 @@ fix.to              = '@gabor_f1.duration'; % Require fixation until the choice 
 fix.X               = 0;
 fix.Y               = 0; 
 fix.tolerance       = 2;
-fix.failEndsTrial  = true; % Make false during piloting
+fix.failEndsTrial  = false; % Make false during piloting
 
 %% ====== Enter inputs ====== %
 
@@ -83,11 +83,19 @@ p.X = testEccentricity;
 p.Y = 0;
 p.contrast = 1;
 
+p2= duplicate(p,'gabor_f1_dup'); % second pedestal on the other side for discrimination test
+
 g= duplicate(p,'gabor_f3'); % Gabor to display during testing (either left or right) 
 g.frequency = p.frequency*3;
 g.contrast = 1;
 g.color = [0.5 0.5 0.5 p.contrast/3];
-  
+
+
+gg= duplicate(p,'gabor_f5'); % Gabor to display during testing (either left or right) 
+gg.frequency = p.frequency*5;
+gg.contrast = 1;
+gg.color = [0.5 0.5 0.5 p.contrast/5];
+
 %% ===== Create Behaviours =====%
 
 % Key behaviour (L for left, R for right)
@@ -109,8 +117,8 @@ k.successEndsTrial  = false;
 if ~ismac
     plugins.sound(c); 
     s= plugins.soundFeedback(c,'soundFeedback');
-    s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-    s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+    %s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
+    %s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
 end 
 
 %% ====== Setup the conditions in a design object ====== %
@@ -121,7 +129,7 @@ nrLevels = d{1}.nrLevels;
 
 if strcmpi(method,'STAIRCASE')
     adpt = staircaseStopCase(c,'@choice.correct',0.1, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015); % [up, down], 0.01 step-size
-    adpt.requiredBehaviors = 'fixation'; % Comment for piloting
+    % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_f1.contrast = duplicate(adpt,[nrLevels 1]);
 end
 
@@ -194,7 +202,20 @@ function beginTrial(c)
   randLogical = (rand()<0.5); % 1 or 0
   eccentricity = c.gabor_f1.X;
   c.gabor_f1.X = randLogical*eccentricity + ~randLogical * (-1*eccentricity);
+
+  c.gabor_f1_dup.X = -1*c.gabor_f1.X; 
+  c.gabor_f1_dup.contrast = 1;
+  c.gabor_f1_dup.color = [0.5 0.5 0.5 c.gabor_f1.contrast];
+
   c.gabor_f3.X = c.gabor_f1.X;
   c.gabor_f3.contrast = 1;
   c.gabor_f3.color = [0.5 0.5 0.5 c.gabor_f1.contrast/3];
+
+  c.gabor_f5.X = c.gabor_f1.X;
+  c.gabor_f5.contrast = 1;
+  c.gabor_f5.color = [0.5 0.5 0.5 c.gabor_f1.contrast/5];
+  c.gabor_f5.phase = c.gabor_f3.phase;
+%   c.gabor_f3.phase
+%   c.gabor_f5.phase
+
 end

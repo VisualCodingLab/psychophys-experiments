@@ -76,14 +76,14 @@ classdef staircaseStopCase < neurostim.plugins.adaptive
                 o.cnt = o.cnt + 1;                
                 if o.cnt >= o.n
                     % decrement value
-                    o.value = nanmax(v - o.weights(2)*o.delta,o.min);
+                    o.value = max(v - o.weights(2)*o.delta,o.min, "omitnan");
                 end
                 fprintf('Delta after updating correct = %1.3f \n', o.delta); 
             else
                 % reset correct count
                 o.cnt = 0;            
                 % increment value
-                o.value = nanmin(v + o.weights(1)*o.delta,o.max);
+                o.value = min(v + o.weights(1)*o.delta,o.max, "omitnan");
                 o.reversals = o.reversals + 1;
                 o.delta = o.delta/1.5;
                 fprintf('Reverse count! %i \n', o.reversals); 
