@@ -11,7 +11,7 @@ pianola = false; % Did not include the simulated observe code, always set to 'fa
 
 %% ====== Setup CIC and the stimuli ====== %
 
-c =  marmolab.rigcfg;   
+c =  myRig;   
 c.paradigm='PhaseComboGabor';
 c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
 c.itiClear = 1;
@@ -48,7 +48,7 @@ fix.to              = '@gabor_test.duration'; % Require fixation until the choic
 fix.X               = 0;
 fix.Y               = 0; 
 fix.tolerance       = 2;
-fix.failEndsTrial  = true; % Make false during piloting
+fix.failEndsTrial  = false; % Make false during piloting
 
 %% ====== Enter inputs ====== %
 
@@ -156,8 +156,8 @@ k.successEndsTrial  = false;
 if ~ismac
     plugins.sound(c); 
     s= plugins.soundFeedback(c,'soundFeedback');
-    s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-    s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+    % s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
+    % s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
 end 
 
 %% ====== Setup the conditions in a design object ====== %
@@ -172,12 +172,12 @@ if strcmpi(method,'QUEST')
     p2i = @(x) (log10(x));
      
     adpt = plugins.quest(c, '@choice.correct','guess',p2i(0.25),'guessSD',4,'i2p',i2p,'p2i',p2i);
-    adpt.requiredBehaviors = 'fixation'; % Comment for piloting
+    % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);  
     
 elseif strcmpi(method,'STAIRCASE')
     adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015); % [up, down], 0.01 step-size
-    adpt.requiredBehaviors = 'fixation'; % Comment for piloting
+    % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);
 end
 

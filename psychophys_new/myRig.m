@@ -75,6 +75,18 @@ switch upper(computerName)
         c.screen.width      = 52.7;
         c.screen.height     = c.screen.width*c.screen.ypixels/c.screen.xpixels;
 
+    case 'MU00011700'
+        % An example experimental rig called 'experimentrig'
+        c.screen.number     = 0; % Use the second screen as the display for the subject
+        c.screen.frameRate  = 59.973;
+        % Geometry
+        c.screen.xpixels    = 3440;
+        c.screen.ypixels    = 1440;
+        c.screen.xorigin    = [];
+        c.screen.yorigin    = [];
+        c.screen.width      = 80;
+        c.screen.height     = c.screen.width*c.screen.ypixels/c.screen.xpixels;
+
     otherwise
         fprintf('This computer (%s) is not recognised. Using default settings.\nHint: Make your own myRig function to prevent this warning. Starting from template %s.\n',computerName,strrep(fullfile(here,myRigFile),'\','/'));        
         scrNr = max(Screen('screens'));
