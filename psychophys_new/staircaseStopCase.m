@@ -54,6 +54,7 @@ classdef staircaseStopCase < neurostim.plugins.adaptive
             p.addParameter('max',NaN, @(x) validateattributes(x,{'double'},{'numel',1}));
             p.addParameter('delta',0, @(x) validateattributes(x,{'double'},{'numel',1}));
             p.addParameter('weights',[1.0, 1.0], @(x) validateattributes(x,{'double'},{'numel',2}));            
+            
             p.parse(varargin{:});
             
                         
@@ -93,11 +94,24 @@ classdef staircaseStopCase < neurostim.plugins.adaptive
         function v= getAdaptValue(o)
             % Return the current, internally stored, value
             fprintf('Delta at getAdapt = %1.3f \n', o.delta); 
-            if o.reversals >= 9
-                o.cic.endExperiment() % when o.value is 0, end the experiment
+
+
+            if o.reversals >= 2
+                o.cic.phaseDone(o.cic.condition) = 1;
+                o.cic.endTrial() % when o.value is 0, end the experiment
             end
             v = o.value; %otherwise assign value to v, start next trial
         end  
     end % methods
+    
+    % 
+    % methods (Static)
+    %     function out = getSetVar(data)
+    %         persistent completePhase;
+    % 
+    %         if 
+    %     end
+    % end
+
     
 end % classdef

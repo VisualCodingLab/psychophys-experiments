@@ -3,8 +3,8 @@ clear all; clc
 
 subject = 'QQ'; 
 background = 'off'; %on/off
-threshMode = 'detect'; %discrim/detect
-path = '/home/marmolab/data/phaseCombo/';
+threshMode = 'discrim'; %discrim/detect
+path = '';
 % B = 100; %how many simulations for bootstrapping
 
 sList = {'QQ', 'QV'};     % {'QQ', 'QV', 'OY', 'EK'};
@@ -66,7 +66,7 @@ for iSubj = 1:length(sList)
             end
         end
         
-        figure(figNum); clf;
+        figure(figNum); %clf;
         
         testThresh = mean(thresh, 1); % thresholds by condition
         refThresh = testThresh(1); % what condition is acting as reference

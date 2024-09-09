@@ -14,6 +14,7 @@ pianola = false; % Did not include the simulated observe code, always set to 'fa
 c =  myRig;   
 c.paradigm='PhaseComboGabor';
 c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
+c.addScript('AfterTrial',@afterEachTrial); 
 c.itiClear = 1;
 c.iti= 250;
 %c.saveEveryN = length(contrastList)*length(phaseList)*nRepeatsPerCond; % only save between blocks
@@ -21,6 +22,7 @@ c.trialDuration = Inf; % A trial can only be ended by a mouse click
 c.cursor = 'none'; % Hide? 
 c.screen.color.background = 0.5*ones(1,3);
 %c.subjectNr= 0; % Gives a subject code, turn off to manually input
+
 
 %% ====== Enforce Fixation ====== %
 
@@ -61,7 +63,10 @@ pedestalContrast  = 0.2;
 
 % test properties
 testFreq = pedestalFrequency*3;
-phaseList = [0 7.5 15 30 60 90 120 150 165 172.5 180];
+phaseList = [0 90 180];
+
+c.addProperty('phaseDone', zeros(size(phaseList)));
+c.addProperty('beep', 0);
 
 % experiment properties
 nRepeatsPerCond = 12; % phaseList*nRepeatsPerCond=blockLength
@@ -166,6 +171,7 @@ d{1}=design('phase'); % Can change to orientation/phase/frequency
 d{1}.fac1.gabor_test.phase = phaseList;
 nrLevels = d{1}.nrLevels;
 
+
 if strcmpi(method,'QUEST')
     
     i2p = @(x) (min(10.^x,1)); % Map Quest intensity to contrast values in [0 , 1]
@@ -176,7 +182,7 @@ if strcmpi(method,'QUEST')
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);  
     
 elseif strcmpi(method,'STAIRCASE')
-    adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015); % [up, down], 0.01 step-size
+    adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015, 'doneDandler', @endPhaseIndex); % [up, down], 0.01 step-size
     % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);
 end
@@ -243,6 +249,7 @@ sprintf('%1.4f, ', thresh)
 
 % Must be at the end
 
+
 function img = getNoiseIm(sz, rg)
     img = makeNoisePatt(sz, 0, 180, 1.5);
     if rg == 2
@@ -259,6 +266,26 @@ end
 
 
 function beginTrial(c)
+  if c.beep == 1 
+      c.beep = 2
+  end
+
+  if c.phaseDone(c.condition)
+    c.endTrial()
+
+    if c.beep ~= 2
+    c.beep = 1;
+    end
+  end 
+
+
+  beep
+
+  c.phaseDone(c.condition)
+  disp(c.condition)
+
+  fprintf('AAAAAAAA')
+  disp(c.phaseDone)
 
   %  Screen('BlendFunction', c.window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     if c.noise_L.on < Inf
@@ -272,5 +299,24 @@ function beginTrial(c)
   randLogical = (rand()<0.5); % 1 or 0
   eccentricity = c.gR_pedestal.X;
   c.gabor_test.X = randLogical*eccentricity + ~randLogical * (-1*eccentricity);
-  
+
+end
+
+
+function afterEachTrial(c)
+    aaaa = 'i am the end'                   
+
+  fprintf('BBBBBBB')
+  disp(c.phaseDone)
+
+  if all(c.phaseDone)
+        c.cic.endExperiment() 
+  end
+
+end
+
+
+
+function endPhaseIndex(i)
+c.phaseDone(i) = 1;
 end

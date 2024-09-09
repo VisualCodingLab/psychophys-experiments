@@ -80,11 +80,11 @@ switch upper(computerName)
         c.screen.number     = 0; % Use the second screen as the display for the subject
         c.screen.frameRate  = 59.973;
         % Geometry
-        c.screen.xpixels    = 3440;
-        c.screen.ypixels    = 1440;
+        c.screen.xpixels    = 1920; % wide: 3440;
+        c.screen.ypixels    = 1080; % wide: 1440;
         c.screen.xorigin    = [];
         c.screen.yorigin    = [];
-        c.screen.width      = 80;
+        c.screen.width      = 53.34; % 80; this is for wide monitor
         c.screen.height     = c.screen.width*c.screen.ypixels/c.screen.xpixels;
 
     otherwise
