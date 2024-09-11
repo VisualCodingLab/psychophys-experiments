@@ -79,7 +79,7 @@ classdef staircaseStopCase < neurostim.plugins.adaptive
                     % decrement value
                     o.value = max(v - o.weights(2)*o.delta,o.min, "omitnan");
                 end
-                fprintf('Delta after updating correct = %1.3f \n', o.delta); 
+%                 fprintf('Delta after updating correct = %1.3f \n', o.delta); 
             else
                 % reset correct count
                 o.cnt = 0;            
@@ -87,13 +87,20 @@ classdef staircaseStopCase < neurostim.plugins.adaptive
                 o.value = min(v + o.weights(1)*o.delta,o.max, "omitnan");
                 o.reversals = o.reversals + 1;
                 o.delta = o.delta/1.5;
-                fprintf('Reverse count! %i \n', o.reversals); 
-            end            
+%                 fprintf('Reverse count! %i \n', o.reversals); 
+            end
+
+
+            % store the result for THIS trial for THIS phase and increment index
+            o.cic.staircaseResults(o.cic.condition, o.cic.staircaseIndexes(o.cic.condition)) = o.value;
+            o.cic.staircaseIndexes(o.cic.condition) = o.cic.staircaseIndexes(o.cic.condition) + 1;
+
+
         end
         
         function v= getAdaptValue(o)
             % Return the current, internally stored, value
-            fprintf('Delta at getAdapt = %1.3f \n', o.delta); 
+%             fprintf('Delta at getAdapt = %1.3f \n', o.delta); 
 
 
             if o.reversals >= 2

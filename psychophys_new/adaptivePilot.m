@@ -14,7 +14,7 @@ pianola = false; % Did not include the simulated observe code, always set to 'fa
 c =  myRig;   
 c.paradigm='PhaseComboGabor';
 c.addScript('BeforeTrial',@beginTrial); % Script that varies noise pattern, test location
-c.addScript('AfterTrial',@afterEachTrial); 
+c.addScript('AfterTrial',@afterTrialFunc); % Script that varies noise pattern, test location
 c.itiClear = 1;
 c.iti= 250;
 %c.saveEveryN = length(contrastList)*length(phaseList)*nRepeatsPerCond; % only save between blocks
@@ -63,16 +63,21 @@ pedestalContrast  = 0.2;
 
 % test properties
 testFreq = pedestalFrequency*3;
-phaseList = [0 90 180];
+phaseList = [0 7.5 30 45 60 90 120 150 165 172.5 180];
 
 c.addProperty('phaseDone', zeros(size(phaseList)));
-c.addProperty('beep', 0);
+
 
 % experiment properties
 nRepeatsPerCond = 12; % phaseList*nRepeatsPerCond=blockLength
 testEccentricity = 5;
 testDuration = 500;
 nBlocks = 10;
+
+% initialisation of result array
+maxTrialNo = nBlocks * nRepeatsPerCond * length(phaseList);
+c.addProperty('staircaseResults', NaN(length(phaseList), maxTrialNo));
+c.addProperty('staircaseIndexes', ones(length(phaseList), 1));
 
 %% ====== Test gabor properties ====== %
 
@@ -182,7 +187,7 @@ if strcmpi(method,'QUEST')
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);  
     
 elseif strcmpi(method,'STAIRCASE')
-    adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015, 'doneDandler', @endPhaseIndex); % [up, down], 0.01 step-size
+    adpt = staircaseStopCase(c,'@choice.correct',0.2, 'n',3,'min',0,'max',1,'weights',[2 1],'delta',0.015); % [up, down], 0.01 step-size
     % adpt.requiredBehaviors = 'fixation'; % Comment for piloting
     d{1}.conditions(:,1).gabor_test.contrast = duplicate(adpt,[nrLevels 1]);
 end
@@ -220,30 +225,53 @@ import neurostim.utils.*;
 % by the startTime event, we use the 'after' option of the parameters.get
 % member function
 
-phase = get(c.gabor_test.prms.phase,'after','startTime');
-contrast = get(c.gabor_test.prms.contrast,'after','startTime');
-if iscell(phase) 
-    hasNoData = cellfun(@isempty, phase);
-    phase = [phase{~hasNoData}];
-    contrast = contrast(~hasNoData); 
-end
-uV = unique(phase);
-figure;
-hold on
-a=1;
-for u=uV(:)'
-    stay = phase ==u;
-    plot(contrast(stay),'.-');
-    tmp = contrast(stay);
-    thresh(a) = tmp(end);
-    a = a+1;
+figure;hold on;
+thresh = zeros(length(phaseList), 1);
+legendStr = [];
+
+for i=1:length(phaseList)
+    legendStr = [legendStr sprintf("%i", phaseList(i))];
+
+    x = 1:c.staircaseIndexes(i)-1;
+    y = c.staircaseResults(i, x);
+    plot(x,y)
+
+    thresh(i) = c.staircaseResults(i, x(end));
+
 end
 xlabel 'Trial'
 ylabel 'Contrast '
 title ([method ' in action...'])
-legend(num2str(uV(:)))
+legend(legendStr)
 
 sprintf('%1.4f, ', thresh)
+
+
+% phase = get(c.gabor_test.prms.phase,'after','startTime');
+% contrast = get(c.gabor_test.prms.contrast,'after','startTime');
+% if iscell(phase) 
+%     hasNoData = cellfun(@isempty, phase);
+%     phase = [phase{~hasNoData}];
+%     contrast = contrast(~hasNoData); 
+% end
+% uV = unique(phase);
+% figure;
+% hold on
+% a=1;
+% for u=uV(:)'
+%     stay = phase ==u;
+%     plot(contrast(stay),'.-');
+%     tmp = contrast(stay);
+%     thresh(a) = tmp(end);
+%     a = a+1;
+% end
+% 
+% xlabel 'Trial'
+% ylabel 'Contrast '
+% title ([method ' in action...'])
+% legend(num2str(uV(:)))
+% 
+% sprintf('%1.4f, ', thresh)
 
 %% ====== Functions ====== %
 
@@ -266,26 +294,22 @@ end
 
 
 function beginTrial(c)
-  if c.beep == 1 
-      c.beep = 2
-  end
 
   if c.phaseDone(c.condition)
-    c.endTrial()
 
-    if c.beep ~= 2
-    c.beep = 1;
-    end
+    c.endTrial()
   end 
 
+%   c.phaseDone(c.condition)
+%   disp(c.condition)
+%   disp(c.phaseDone)
 
-  beep
+% disp('begin trial')
+%     c.blocks(c.block).designs.list
+% disp('----------')
 
-  c.phaseDone(c.condition)
-  disp(c.condition)
 
-  fprintf('AAAAAAAA')
-  disp(c.phaseDone)
+%    c.blocks(c.block).designs.currentTrialIx
 
   %  Screen('BlendFunction', c.window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     if c.noise_L.on < Inf
@@ -303,20 +327,12 @@ function beginTrial(c)
 end
 
 
-function afterEachTrial(c)
-    aaaa = 'i am the end'                   
+function afterTrialFunc(c)
 
-  fprintf('BBBBBBB')
-  disp(c.phaseDone)
+%   disp(c.phaseDone)
 
   if all(c.phaseDone)
         c.cic.endExperiment() 
   end
 
-end
-
-
-
-function endPhaseIndex(i)
-c.phaseDone(i) = 1;
 end
