@@ -4,7 +4,7 @@ clear all; clc;
 subject = 'QQ';
 background = 'off'; %on/off
 threshMode = 'discrim'; %discrim/detect
-path = '';
+path = 'data/';
 % B = 100; %how many simulations for bootstrapping
 
 sList = {'CI', 'YQ'};     % {'CI', 'YQ'};

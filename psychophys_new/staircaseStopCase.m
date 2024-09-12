@@ -103,7 +103,7 @@ classdef staircaseStopCase < neurostim.plugins.adaptive
 %             fprintf('Delta at getAdapt = %1.3f \n', o.delta); 
 
 
-            if o.reversals >= 2
+            if o.reversals >= 9
                 o.cic.phaseDone(o.cic.condition) = 1;
                 o.cic.endTrial() % when o.value is 0, end the experiment
             end
