@@ -88,22 +88,6 @@ c.addProperty('staircaseIndexes', ones(length(phaseList), 1));
 
 %% ====== Test gabor properties ====== %
 
-g5=stimuli.gabor(c,'gabor_test5'); % Gabor to display during testing (either left or right) 
-g5.sigma = 0.9;
-g5.frequency = testFreq5;
-g5.mask = 'GAUSS';
-g5.phaseSpeed = 0;
-g5.orientation = 90;
-g5.width = 5;
-g5.height = 5;
-g5.duration = testDuration;
-g5.on = 0;
-g5.X = testEccentricity;
-g5.Y = 0;
-g5.contrast = 1;
-g5.color = [0.5 0.5 0.5 1];
-
-
 g3=stimuli.gabor(c,'gabor_test3'); % Gabor to display during testing (either left or right) 
 g3.sigma = 0.9;
 g3.frequency = testFreq3;
@@ -117,7 +101,9 @@ g3.on = 0;
 g3.X = testEccentricity;
 g3.Y = 0;
 g3.contrast = 1;
-g3.color = [0.5 0.5 0.5 0.6];
+g3.color = [0.5 0.5 0.5 1];
+
+
 
 
 % % create cell array to cycle colour
@@ -135,6 +121,26 @@ g3.color = [0.5 0.5 0.5 0.6];
 % contrast (although should be 1) and duration (vector of
 % durations)
 
+
+g5=stimuli.gabor(c,'gabor_test5'); % Gabor to display during testing (either left or right) 
+g5.sigma = 0.9;
+g5.frequency = testFreq5;
+g5.mask = 'GAUSS';
+g5.phaseSpeed = 0;
+g5.orientation = 90;
+g5.width = 5;
+g5.height = 5;
+g5.duration = testDuration;
+g5.on = 0;
+g5.X = -1*testEccentricity;
+g5.Y = 0;
+g5.contrast = 1/5;
+g5.color = [0.5 0.5 0.5 0.5];
+
+g5_dup = duplicate(g5, 'gabor_test5_dup'); % Right adapter (duplicates gL)
+g5_dup.X = testEccentricity;
+
+
 gL=stimuli.gabor(c,'gL_pedestal'); % Gabor to display during testing (either left or right) 
 gL.sigma = 0.9;
 gL.frequency = pedestalFrequency;
@@ -151,13 +157,13 @@ gL.contrast = 1;
 gL.color = [0.5 0.5 0.5 pedestalContrast];
 
 
+gR = duplicate(gL, 'gR_pedestal'); % Right adapter (duplicates gL)
+gR.X = testEccentricity;
+
+
 % Below statement: If duration is 0 (i.e. no adapter), then
 % turn the stimuli on immediately (don't wait for fixation) to
 % prevent double fixation waiting time
-
-
-gR = duplicate(gL, 'gR_pedestal'); % Right adapter (duplicates gL)
-gR.X = testEccentricity;
 
 
 
@@ -348,11 +354,12 @@ function beginTrial(c)
   randLogical = (rand()<0.5); % 1 or 0
   eccentricity = c.gR_pedestal.X;
   c.gabor_test3.X = randLogical*eccentricity + ~randLogical * (-1*eccentricity);
-  c.gabor_test5.X = c.gabor_test3.X;
+%   c.gabor_test5.X = c.gabor_test3.X;
 
   c.gabor_test5.phase = c.gabor_test3.phase;
+  c.gabor_test5_dup.phase = c.gabor_test3.phase;
 
-  c.gabor_test5.contrast = c.gabor_test3.contrast * 3/5;
+%   c.gabor_test5.contrast = c.gabor_test3.contrast * 3/5;
 
 %   c.gabor_test3.color = [0.5 0.5 0.5 c.gabor_test3.alphaaa];
 %   c.gabor_test5.color = [0.5 0.5 0.5 c.gabor_test3.alphaaa * 3/5];
