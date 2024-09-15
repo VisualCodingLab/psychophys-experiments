@@ -87,6 +87,20 @@ c.addProperty('staircaseIndexes', ones(length(phaseList), 1));
 
 
 %% ====== Test gabor properties ====== %
+g3=stimuli.gabor(c,'gabor_test3'); % Gabor to display during testing (either left or right) 
+g3.sigma = 0.9;
+g3.frequency = testFreq3;
+g3.mask = 'GAUSS';
+g3.phaseSpeed = 0;
+g3.orientation = 90;
+g3.width = 5;
+g3.height = 5;
+g3.duration = testDuration;
+g3.on = 0;
+g3.X = testEccentricity;
+g3.Y = 0;
+g3.contrast = 1;
+g3.color = [0.5 0.5 0.5 1];
 
 g5=stimuli.gabor(c,'gabor_test5'); % Gabor to display during testing (either left or right) 
 g5.sigma = 0.9;
@@ -101,23 +115,9 @@ g5.on = 0;
 g5.X = testEccentricity;
 g5.Y = 0;
 g5.contrast = 1;
-g5.color = [0.5 0.5 0.5 1];
+g5.color = [0.5 0.5 0.5 0.5];
 
 
-g3=stimuli.gabor(c,'gabor_test3'); % Gabor to display during testing (either left or right) 
-g3.sigma = 0.9;
-g3.frequency = testFreq3;
-g3.mask = 'GAUSS';
-g3.phaseSpeed = 0;
-g3.orientation = 90;
-g3.width = 5;
-g3.height = 5;
-g3.duration = testDuration;
-g3.on = 0;
-g3.X = testEccentricity;
-g3.Y = 0;
-g3.contrast = 1;
-g3.color = [0.5 0.5 0.5 0.6];
 
 
 % % create cell array to cycle colour

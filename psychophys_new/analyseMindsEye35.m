@@ -135,7 +135,7 @@ g5.on = 0;
 g5.X = -1*testEccentricity;
 g5.Y = 0;
 g5.contrast = 1/5;
-g5.color = [0.5 0.5 0.5 0.5];
+g5.color = [0.5 0.5 0.5 0.2];
 
 g5_dup = duplicate(g5, 'gabor_test5_dup'); % Right adapter (duplicates gL)
 g5_dup.X = testEccentricity;
