@@ -10,7 +10,7 @@ method = 'STAIRCASE'; % Set this to QUEST or STAIRCASE
 pianola = false; % Did not include the simulated observe code, always set to 'false'
 
 %% ====== Setup CIC and the stimuli ====== %
-syncVariance = 8e-04;
+syncVariance = 2e-04;
 Screen('Preference','SyncTestSettings', syncVariance);
 
 
@@ -67,7 +67,7 @@ pedestalContrast  = 0.2;
 % test properties
 testFreq3 = pedestalFrequency*3;
 testFreq5 = pedestalFrequency*5;
-phaseList = [0, 90, 180];
+phaseList = [0 7.5 15 30 60 90 120 150 165 172.5 180];
 
 % set to 1 as each phase reaches reversal count
 c.addProperty('phaseDone', zeros(size(phaseList))); 
@@ -204,8 +204,8 @@ k.successEndsTrial  = false;
 if ~ismac
     plugins.sound(c); 
     s= plugins.soundFeedback(c,'soundFeedback');
-    % s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-    % s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+    s.add('waveform','correct.wav','when','afterTrial','criterion','@ choice.correct');
+    s.add('waveform','incorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
 end 
 
 %% ====== Setup the conditions in a design object ====== %

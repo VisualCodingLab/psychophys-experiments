@@ -40,7 +40,7 @@ if isempty(computerName)
 end
 
 %% Lab defaults 
-c.dirs.output             = tempdir; % Output files will be stored here.
+c.dirs.output             = 'C:\Users\Zac Wang\Documents\psychophys-experiments\psychophys_new\data_new'; % Output files will be stored here.
 c.iti                     = 500;
 c.saveEveryBlock          = true;
 c.saveEveryN              = inf;
@@ -52,6 +52,7 @@ c.timing.vsyncMode        = 0; % 0 waits for the flip and makes timing most accu
 c.screen.colorMode        = 'RGB';        
 c.screen.type             = 'GENERIC';                    
 c.cursor                  = 'arrow';  % Probably easiest for user to keep seeing the mouse in a demo.
+
 %% Lab default settings that vary with debug flag
 if pin.Results.debug
     
@@ -86,7 +87,7 @@ switch upper(computerName)
         c.screen.yorigin    = [];
         c.screen.width      = 53.34; % 80; this is for wide monitor
         c.screen.height     = c.screen.width*c.screen.ypixels/c.screen.xpixels;
-
+        c.screen.distance   = 65.0; % cm
     otherwise
         fprintf('This computer (%s) is not recognised. Using default settings.\nHint: Make your own myRig function to prevent this warning. Starting from template %s.\n',computerName,strrep(fullfile(here,myRigFile),'\','/'));        
         scrNr = max(Screen('screens'));
