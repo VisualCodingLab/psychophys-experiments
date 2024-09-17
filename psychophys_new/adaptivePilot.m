@@ -9,7 +9,7 @@ import neurostim.*
 method = 'STAIRCASE'; % Set this to QUEST or STAIRCASE
 pianola = false; % Did not include the simulated observe code, always set to 'false'
 
-%% ====== Setup CIC and the stimuli ====== %
+%% ====== Setyt67ygh6ubhgnjeg aZhbup CIC and the stimuli ====== %
 
 c =  myRig;   
 c.paradigm='PhaseComboGabor';
@@ -22,7 +22,12 @@ c.trialDuration = Inf; % A trial can only be ended by a mouse click
 c.cursor = 'none'; % Hide? 
 c.screen.color.background = 0.5*ones(1,3);
 %c.subjectNr= 0; % Gives a subject code, turn off to manually input
-
+if ~ismac
+    plugins.sound(c); 
+    s= plugins.soundFeedback(c,'soundFeedback');
+    s.add('waveform','correct.wav','when','afterTrial','criterion','@ choice.correct');
+    s.add('waveform','incorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
+end 
 
 %% ====== Enforce Fixation ====== %
 
@@ -163,12 +168,6 @@ c.trialDuration = '@choice.stopTime'; % End the trial as soon as the 2AFC respon
 k.failEndsTrial = false;
 k.successEndsTrial  = false;
            
-if ~ismac
-    plugins.sound(c); 
-    s= plugins.soundFeedback(c,'soundFeedback');
-    % s.add('waveform','skCorrect.wav','when','afterTrial','criterion','@ choice.correct');
-    % s.add('waveform','skIncorrect.wav','when','afterTrial','criterion','@ ~choice.correct');
-end 
 
 %% ====== Setup the conditions in a design object ====== %
 
