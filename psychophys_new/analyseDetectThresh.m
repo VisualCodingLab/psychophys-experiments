@@ -81,7 +81,7 @@ for iSubj = 1:length(sList)
             f1 = sin(x);
             f2 = sin((x+pList(ph))*3); 
             f3 = f1+f2*0.3; 
-            peak2peak(ph) = range(f3);
+            peak2peak(ph) = max(f3) - min(f3);
             rms(ph) = std(f3); 
         end
 
