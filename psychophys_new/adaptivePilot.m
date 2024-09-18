@@ -9,7 +9,7 @@ import neurostim.*
 method = 'STAIRCASE'; % Set this to QUEST or STAIRCASE
 pianola = false; % Did not include the simulated observe code, always set to 'false'
 
-%% ====== Setyt67ygh6ubhgnjeg aZhbup CIC and the stimuli ====== %
+%% ====== Setup CIC and the stimuli ====== %
 
 c =  myRig;   
 c.paradigm='PhaseComboGabor';

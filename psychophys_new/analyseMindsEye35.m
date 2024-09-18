@@ -10,7 +10,7 @@ method = 'STAIRCASE'; % Set this to QUEST or STAIRCASE
 pianola = false; % Did not include the simulated observe code, always set to 'false'
 
 %% ====== Setup CIC and the stimuli ====== %
-syncVariance = 8e-04;
+syncVariance = 2e-04;
 Screen('Preference','SyncTestSettings', syncVariance);
 
 
